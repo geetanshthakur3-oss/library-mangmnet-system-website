@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>City Central Library</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230b1b34'/%3E%3Cpath d='M7 9.5c3.2-1.1 6.4-.7 9 1.1v12.4c-2.6-1.8-5.8-2.2-9-1.1zM25 9.5c-3.2-1.1-6.4-.7-9 1.1v12.4c2.6-1.8 5.8-2.2 9-1.1z' fill='%23f4f2ed'/%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&family=Inter+Tight:wght@500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--paper:#EDEBE6;--sheet:#F4F2ED;--ink:#141414;--muted:#6D6A63;--cobalt:#1F3FB0;--rule:rgba(20,20,20,.9);--ease:cubic-bezier(.2,.8,.2,1);--H:400px;--ws:68px;--d:210px;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--paper);color:var(--ink);overflow:hidden;user-select:none;-webkit-font-smoothing:antialiased;font:500 13px 'Inter Tight',system-ui,sans-serif}
+a{color:inherit;text-decoration:none}button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
+.lbl{font:600 10.5px/1 'Inter Tight',system-ui,sans-serif;letter-spacing:.09em;text-transform:uppercase}
+.box{display:inline-flex;align-items:center;height:21px;padding:0 8px;border:1px solid var(--rule)}
+.grain{position:fixed;inset:0;z-index:40;pointer-events:none;mix-blend-mode:multiply;opacity:.55;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .45 0 0 0 0 .42 0 0 0 0 .38 .6 0 0 0 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+.bar{position:fixed;left:0;right:0;top:0;height:calc(84px + env(safe-area-inset-top,0px));padding:env(safe-area-inset-top,0px) 32px 0;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;z-index:30}
+.bar>:last-child{justify-self:end}
+.logo{display:grid;gap:5px;justify-items:center;color:var(--cobalt)}
+.logo b{font:400 22px/1 Newsreader,Georgia,serif;letter-spacing:.04em}.logo span{font:600 9px/1 'Inter Tight',sans-serif;letter-spacing:.34em;padding-left:.34em}
+.tabs{position:fixed;left:50%;top:calc(50% - var(--H)/2 - 86px);transform:translateX(-50%);display:flex;z-index:30}
+.tabs button{position:relative;height:23px;padding:0 11px;border:1px solid var(--rule);margin-left:-1px;white-space:nowrap;transition:color .45s var(--ease)}
+.tabs button:first-of-type{margin-left:0}.tabs button.on{color:#fff}.tabs button span{position:relative}
+#ind{position:absolute;left:0;top:0;height:23px;background:var(--cobalt);transition:width .6s var(--ease),transform .6s var(--ease)}
+#shelf{position:fixed;left:0;right:0;top:calc(50% - var(--H)/2 - 40px);height:calc(var(--H) + 80px);perspective:2200px;perspective-origin:50% 50%;touch-action:pan-y;z-index:10}
+#stage{position:absolute;left:50%;top:50%;width:0;height:0;transform-style:preserve-3d}
+.tape{position:absolute;left:0;top:0;width:0;height:0;transform-style:preserve-3d;will-change:transform}
+.sp,.cv{position:absolute;top:calc(var(--H)/-2);height:var(--H);backface-visibility:hidden;border-radius:2px;overflow:hidden;container-type:inline-size}
+.sp{width:var(--ws);left:calc(var(--ws)/-2);transform:translateZ(calc(var(--d)/2))}
+.cv{width:var(--d);left:calc(var(--d)/-2);transform:rotateY(90deg) translateZ(calc(var(--ws)/2));box-shadow:0 30px 60px -28px rgba(20,16,10,.55)}
+.sp::after,.cv::after{content:"";position:absolute;inset:0;background:#000;opacity:var(--shade,0);pointer-events:none}
+.spn{position:absolute;inset:0;background:var(--a);color:var(--c);display:flex;flex-direction:column;align-items:center;padding:14cqw 0 12cqw;gap:12cqw;box-shadow:inset 0 0 0 1px rgba(0,0,0,.2)}
+.spn i{width:46cqw;height:46cqw;border-radius:50%;background:var(--b);flex:none}
+.spn b{writing-mode:vertical-rl;flex:1;display:flex;align-items:center;white-space:nowrap;font:400 var(--fs) Newsreader,Georgia,serif;letter-spacing:.01em}
+.spn s{text-decoration:none;font:600 17cqw/1 'Inter Tight',sans-serif;letter-spacing:.06em;border:1px solid var(--c);padding:4cqw 6cqw}
+.cvr{position:absolute;inset:0;background:var(--a);color:var(--c);padding:8cqw;display:flex;flex-direction:column;gap:5cqw;font-family:Newsreader,Georgia,serif;--ink:#141414}
+.cvr small{font:600 3.4cqw/1 'Inter Tight',sans-serif;letter-spacing:.14em;text-transform:uppercase}
+.cvr h4{margin:0;font-weight:400;line-height:1;letter-spacing:-.02em;font-size:var(--fs)}
+.cvr em{font-size:5.4cqw}.cvr .bd{position:absolute;right:8cqw;bottom:8cqw;border:1px solid var(--c);font:600 3.4cqw/1 'Inter Tight',sans-serif;padding:1.2cqw 2.4cqw;letter-spacing:.08em}
+.shape{flex:1;min-height:0;background-color:var(--c)}
+.s0{background-image:radial-gradient(circle at 50% 40%,var(--b) 0 30%,transparent 31%),linear-gradient(transparent 62%,var(--ink) 62%)}
+.s1{background-image:repeating-linear-gradient(90deg,var(--b) 0 10%,transparent 10% 20%)}
+.s2{background-image:repeating-radial-gradient(circle at 50% 50%,var(--b) 0 8%,transparent 8% 16%)}
+.s3{background-image:radial-gradient(circle at 50% 70%,var(--b) 0 28%,transparent 29%),linear-gradient(var(--c) 70%,var(--ink) 70%)}
+.s4{background-image:conic-gradient(var(--b) 25%,var(--ink) 0 50%,var(--b) 0 75%,var(--ink) 0);background-size:25% 16%}
+.s5{background-image:linear-gradient(135deg,var(--b) 50%,var(--ink) 50%)}
+#ring{position:fixed;width:42px;height:42px;margin:-21px 0 0 -21px;border:1px solid var(--cobalt);border-radius:50%;color:var(--cobalt);background:rgba(237,235,230,.75);display:grid;place-items:center;z-index:31;transform:scale(0)}
+#ring svg{width:12px;height:12px;margin-left:2px;fill:currentColor}
+#cap{position:fixed;left:50%;top:calc(50% + var(--H)/2 + 30px);transform:translateX(-50%);display:grid;gap:9px;justify-items:center;pointer-events:none;z-index:20}
+.m{position:relative;overflow:hidden;width:min(92vw,760px);text-align:center}
+.m span{display:block}.m span:not(:first-child){position:absolute;left:0;right:0;top:0}
+#ct{font:400 31px/1.12 Newsreader,Georgia,serif;letter-spacing:-.01em}#cs{color:var(--cobalt);font-weight:500;min-height:11px}#cy{font:500 11px/1.4 'Inter Tight',sans-serif;letter-spacing:.08em}
+.arr{position:fixed;top:calc(50% + var(--H)/2 + 40px);width:44px;height:44px;display:grid;place-items:center;z-index:30}
+.arr svg{width:18px;height:10px;fill:none;stroke:currentColor;stroke-width:1.2}
+.ft{position:fixed;left:32px;right:32px;bottom:calc(26px + env(safe-area-inset-bottom,0px));display:flex;justify-content:space-between;z-index:30}
+#det{position:fixed;inset:0;z-index:60;background:var(--sheet);visibility:hidden;display:grid;grid-template-columns:1fr 1fr;gap:4vw;padding:110px 6vw 56px 7vw}
+#det .lg{position:absolute;left:0;right:0;top:0;height:84px;display:grid;place-items:center}
+#det .x{position:absolute;left:32px;top:31px}
+.col{align-self:center;max-width:520px;margin-left:auto;display:grid;gap:18px;justify-items:start}
+.mk{overflow:hidden}.mk>*{display:block}
+#dt{margin:0;font:400 clamp(44px,5.4vw,84px)/1 Newsreader,Georgia,serif;letter-spacing:-.025em}
+#dm{color:var(--muted)}#dsy{margin:0;font:400 17px/1.5 Newsreader,Georgia,serif;max-width:42ch}
+#dc{font:italic 400 15px Newsreader,Georgia,serif;color:var(--muted)}
+.go{height:44px;padding:0 20px;border:1px solid var(--cobalt);color:var(--cobalt);display:inline-flex;align-items:center;margin-top:10px}
+.pw{align-self:center;justify-self:center;height:min(100%,78vh);aspect-ratio:474/900;filter:url(#ink)}
+#poster{position:relative;width:100%;height:100%;container-type:inline-size;overflow:hidden}
+@media (max-width:767px){:root{--H:240px}.bar{height:calc(64px + env(safe-area-inset-top,0px));padding-left:16px;padding-right:16px}.bar>.lbl:last-child{display:none}.bar{height:calc(96px + env(safe-area-inset-top,0px));grid-template-columns:1fr;justify-items:center;align-content:center;gap:10px}.bar>div:first-child{order:2}.bar .logo{order:1}.bar .box{white-space:nowrap}.logo b{font-size:17px}.logo span{font-size:7.5px}.tabs button{padding:0 7px;font-size:9px}.tabs{top:calc(50% - var(--H)/2 - 70px)}#ct{font-size:24px}.ft{left:16px;right:16px;bottom:calc(18px + env(safe-area-inset-bottom,0px))}.ft .lbl{font-size:9px}#pv{left:6px!important}#nx{right:6px!important;left:auto!important}#det{grid-template-columns:1fr;overflow-y:auto;padding:84px 22px 40px;gap:24px}#det .x{left:16px;top:21px}.pw{order:-1;height:46svh}.col{margin:0}#dt{font-size:42px}#dsy{font-size:16px}}
+#legal{position:fixed;inset:0;z-index:70;background:var(--sheet);overflow:auto;padding:calc(32px + env(safe-area-inset-top,0px)) 24px calc(48px + env(safe-area-inset-bottom,0px))}
+#legal[hidden],#none[hidden]{display:none}
+#legal .lw{max-width:720px;margin:0 auto;user-select:text}
+#legal h1{font:400 clamp(34px,5vw,52px)/1.05 Newsreader,Georgia,serif;letter-spacing:-.02em;margin:28px 0 6px}
+#legal .up{font:500 13px 'Inter Tight',sans-serif;color:var(--muted);margin:0 0 28px}
+#legal h2{font:600 15px/1.3 'Inter Tight',sans-serif;margin:26px 0 6px}
+#legal p{font:400 17px/1.6 Newsreader,Georgia,serif;margin:0 0 10px}
+#none{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);text-align:center;display:grid;gap:8px;z-index:20;font:400 24px Newsreader,Georgia,serif;padding:0 24px}
+#none span{font:500 13px 'Inter Tight',sans-serif;color:var(--muted)}
+.nobooks #shelf,.nobooks #tabs,.nobooks #cap,.nobooks .arr,.nobooks #ring{display:none}
+.ft a:hover{text-decoration:underline}
+#reader{position:fixed;inset:0;z-index:65;background:var(--sheet);display:flex;flex-direction:column;--rf:20px}
+#reader[hidden],#rd[hidden]{display:none!important}
+.rbar{display:flex;align-items:center;gap:12px;padding:calc(14px + env(safe-area-inset-top,0px)) 24px 14px;border-bottom:1px solid rgba(20,20,20,.15)}
+.rbar .rt{flex:1;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rctl{display:flex;gap:8px}.rctl .box,.rbar .box{cursor:pointer}
+.rprog{height:3px;background:rgba(20,20,20,.1)}.rprog i{display:block;height:100%;width:0;background:var(--cobalt)}
+.rbody{flex:1;overflow:auto;padding:32px 24px calc(64px + env(safe-area-inset-bottom,0px));user-select:text}
+.rin{max-width:680px;margin:0 auto;font:400 var(--rf)/1.7 Newsreader,Georgia,serif}
+.rin h1{font:400 clamp(30px,5vw,44px)/1.1 Newsreader,Georgia,serif;margin:0 0 6px;letter-spacing:-.02em}
+.rin .by{font:500 13px 'Inter Tight',sans-serif;color:var(--muted);margin:0 0 32px;white-space:normal}
+.rin h2{font:400 1.35em/1.3 Newsreader,Georgia,serif;margin:2em 0 .6em}
+.rin p{margin:0 0 1em;white-space:pre-line}
+@media (max-width:767px){.rbar{padding-left:14px;padding-right:14px;gap:8px}.rbar .rt{display:none}.rctl{margin-left:auto}.rbody{padding:24px 18px calc(64px + env(safe-area-inset-bottom,0px))}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="ink" x="-20%" y="-20%" width="140%" height="140%"><feTurbulence type="fractalNoise" baseFrequency=".011" numOctaves="3" seed="7" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="90" xChannelSelector="R" yChannelSelector="G"/></filter></svg>
+<div class="bar"><div style="display:flex;gap:8px"><a class="lbl box" href="#student" data-go="student">Student login</a><a class="lbl box" href="#staff" data-go="staff">Staff login</a></div>
+<div class="logo"><b class="libname">City Central Library</b></div><span class="lbl" id="cnt"></span></div>
+<nav class="tabs" id="tabs" aria-label="Categories"><i id="ind"></i></nav>
+<section id="shelf" aria-label="Library shelf"><div id="stage"></div></section>
+<button id="ring" aria-label="Open book"><svg viewBox="0 0 12 12"><path d="M1 0L12 6L1 12z"/></svg></button>
+<div id="cap" aria-live="polite"><div class="m" id="ct-m"><span id="ct"></span></div><div class="m lbl" id="cs-m"><span id="cs"></span></div><div class="m" id="cy-m"><span id="cy"></span></div></div>
+<button class="arr" id="pv" style="left:20px" aria-label="Previous book"><svg viewBox="0 0 18 10"><path d="M5 1L1 5l4 4M1 5h16"/></svg></button>
+<button class="arr" id="nx" style="right:20px" aria-label="Next book"><svg viewBox="0 0 18 10"><path d="M13 1l4 4-4 4M17 5H1"/></svg></button>
+<div class="ft lbl"><span>© <span class="libname">City Central Library</span>. All rights reserved.</span><span><a href="#privacy" data-go="privacy">Privacy Policy</a> / <a href="#terms" data-go="terms">Terms and Conditions</a></span></div>
+<div id="det" role="dialog" aria-modal="true" aria-label="Book details"><div class="lg"><div class="logo"><b class="libname">City Central Library</b></div></div>
+<button class="lbl box x" id="cl">Close</button>
+<div class="col"><div class="mk lbl" style="color:var(--cobalt)"><span class="rs" id="dsub"></span></div><div class="mk"><h2 id="dt" class="rs"></h2></div><div class="mk lbl"><span class="rs" id="dm"></span></div><div class="mk"><p id="dsy" class="rs"></p></div><div class="mk"><span id="dc" class="rs"></span></div><div class="mk"><div id="drv" class="rs"></div></div><div class="mk" style="display:flex;gap:12px;flex-wrap:wrap"><button class="lbl go rs" id="rd" hidden>Read this book</button><button class="lbl go rs" id="bk">Browse more books</button></div></div>
+<div class="pw"><div id="poster"></div></div></div>
+<div id="reader" hidden><div class="rbar"><button class="lbl box" id="rback">Back to the book</button><span class="rt lbl" id="rtitle"></span><span class="rctl"><button class="lbl box" id="rminus" aria-label="Smaller text">A-</button><button class="lbl box" id="rplus" aria-label="Larger text">A+</button></span></div><div class="rprog"><i id="rbar"></i></div><div class="rbody" id="rbody"><div class="rin" id="rin"></div></div></div>
+<div id="legal" hidden><div class="lw"><a class="lbl box" href="#" data-go="">Back to the library website</a><h1 id="lt"></h1><p class="up">Last updated November 14, 2026</p><div id="lb"></div></div></div>
+<div id="none" hidden><b>No books on the shelf yet.</b><span>Staff can add books after signing in with Staff login.</span></div>
+<div id="staff" hidden></div><div id="student" hidden></div>
+<template id="student-tpl"><style>
+*{box-sizing:border-box}
+:host{--bg:#f6f7f9;--card:#fff;--ink:#171b22;--mute:#667085;--line:#e6e8ec;--acc:#c2410c;--acc2:#fdf0e6;--onacc:#fff;--side:#1c212b;--ok:#047857;--okbg:#d9f5e8;--warn:#b45309;--warnbg:#fdf0d5;--bad:#b91c1c;--badbg:#fde4e4;--sh:0 1px 2px rgba(16,24,40,.06),0 1px 3px rgba(16,24,40,.08);box-sizing:border-box;display:block;position:fixed;inset:0;z-index:200;overflow:auto;background:var(--bg);color:var(--ink);font:14px/1.5 Inter,system-ui,sans-serif;cursor:auto;user-select:text}:host([hidden]){display:none}
+@media (prefers-color-scheme:dark){:host(:not([data-theme="light"])){--bg:#0f1217;--card:#171b22;--ink:#eceff4;--mute:#98a2b3;--line:#2a303b;--acc:#fb923c;--acc2:#3a2415;--onacc:#1a0e05;--side:#0b0e13;--ok:#5be0ac;--okbg:#0f3a2b;--warn:#f5b95a;--warnbg:#3d2c0c;--bad:#ff8f8f;--badbg:#421818}}
+:host([data-theme="dark"]){--bg:#0f1217;--card:#171b22;--ink:#eceff4;--mute:#98a2b3;--line:#2a303b;--acc:#fb923c;--acc2:#3a2415;--onacc:#1a0e05;--side:#0b0e13;--ok:#5be0ac;--okbg:#0f3a2b;--warn:#f5b95a;--warnbg:#3d2c0c;--bad:#ff8f8f;--badbg:#421818}
+button,a{cursor:pointer}
+
+[hidden]{display:none!important}
+svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+aside{position:fixed;top:0;bottom:0;left:0;width:244px;background:var(--side);color:#c5d0e3;display:flex;flex-direction:column;padding:calc(20px + env(safe-area-inset-top,0px)) 14px calc(16px + env(safe-area-inset-bottom,0px))}
+.brand{display:flex;gap:10px;align-items:center;padding:4px 8px 20px;color:#fff;font-weight:600;font-size:15px}
+.logo{width:34px;height:34px;border-radius:9px;background:var(--acc);color:#fff;display:grid;place-items:center;flex:none}
+.nv{display:flex;gap:12px;align-items:center;width:100%;padding:10px 12px;margin-bottom:2px;border:0;border-radius:8px;background:none;color:inherit;font:500 14px Inter,system-ui,sans-serif;cursor:pointer;text-align:left}
+.nv:hover{background:rgba(255,255,255,.06)}.nv.on{background:rgba(255,255,255,.1);color:#fff}
+.me{margin-top:auto;display:flex;align-items:center;gap:10px;padding:14px 8px 0;border-top:1px solid rgba(255,255,255,.1)}
+.av{width:34px;height:34px;border-radius:50%;background:var(--acc);color:#fff;display:grid;place-items:center;font-weight:600;flex:none}
+.me div{flex:1;min-width:0;line-height:1.3}.me .av{flex:none}.me b{display:block;color:#fff;font-weight:500}.me small{color:#8fa0bb}
+.me button{background:none;border:0;color:#c5d0e3;cursor:pointer;padding:6px;border-radius:6px}.me button:hover{background:rgba(255,255,255,.1)}
+main{margin-left:244px;padding:28px 36px 48px;max-width:1280px}
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:22px;flex-wrap:wrap}
+.top h2{margin:0;font-size:22px;font-weight:600;line-height:1.2}.mute{color:var(--mute)}.strong{font-weight:500}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px}
+.stat,.card{background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--sh)}
+.stat{display:flex;gap:14px;padding:18px;align-items:center}
+.ico{width:42px;height:42px;border-radius:10px;display:grid;place-items:center;flex:none}
+.ico.a{background:var(--acc2);color:var(--acc)}.ico.g{background:var(--okbg);color:var(--ok)}.ico.y{background:var(--warnbg);color:var(--warn)}.ico.r{background:var(--badbg);color:var(--bad)}
+.sl{color:var(--mute);font-size:13px}.stat b{font-size:26px;font-weight:600;line-height:1.2;display:block}.ss{color:var(--mute);font-size:12.5px}
+.g2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);gap:16px;margin:16px 0}
+.ch{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--line)}.ch h3{margin:0;font-size:15px;font-weight:600}
+.bars{padding:16px 20px;display:grid;gap:14px}.bar{display:grid;grid-template-columns:96px 1fr 28px;gap:12px;align-items:center}
+.trk{height:8px;background:var(--bg);border-radius:9px;overflow:hidden}.trk i{display:block;height:100%;background:var(--acc);border-radius:9px}
+.tools{display:flex;gap:10px;padding:14px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap;align-items:center}.sp{flex:1}
+.search{position:relative;flex:1 1 220px;max-width:340px}.search svg{position:absolute;left:11px;top:9px;color:var(--mute)}.search input{padding-left:34px;width:100%}
+input,select{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 11px;min-width:0}
+input:focus,select:focus{outline:0;border-color:var(--acc);box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 22%,transparent)}
+.tw{overflow-x:auto}table{width:100%;border-collapse:collapse}
+th{background:var(--bg);color:var(--mute);font-weight:500;font-size:12.5px;text-align:left;padding:10px 20px;white-space:nowrap}
+td{padding:12px 20px;border-top:1px solid var(--line);vertical-align:middle}tr:hover td{background:color-mix(in srgb,var(--acc) 4%,transparent)}.ra{text-align:right;white-space:nowrap}
+.b1,.b2{font:500 14px Inter,system-ui,sans-serif;border-radius:8px;padding:9px 16px;cursor:pointer;display:inline-flex;gap:8px;align-items:center}
+.b1{background:var(--acc);color:var(--onacc);border:1px solid var(--acc)}.b1:hover{filter:brightness(1.08)}
+.b2{background:var(--card);color:var(--ink);border:1px solid var(--line)}.b2:hover{border-color:var(--acc);color:var(--acc)}.b2.sm{padding:5px 12px;font-size:13px}.b1.red{background:var(--bad);border-color:var(--bad);color:var(--card)}
+.ib{width:32px;height:32px;border:0;background:none;color:var(--mute);border-radius:7px;cursor:pointer;display:inline-grid;place-items:center}.ib:hover{background:var(--bg);color:var(--ink)}
+.pill{display:inline-block;padding:2px 10px;border-radius:99px;font-size:12px;font-weight:500;white-space:nowrap}
+.pill.ok{background:var(--okbg);color:var(--ok)}.pill.bad{background:var(--badbg);color:var(--bad)}.pill.info{background:var(--acc2);color:var(--acc)}.pill.warn{background:var(--warnbg);color:var(--warn)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}.seg button{border:0;background:var(--card);color:var(--mute);padding:7px 14px;font:500 13px Inter,system-ui,sans-serif;cursor:pointer}.seg button.on{background:var(--acc2);color:var(--acc)}
+.empty{padding:40px 20px;text-align:center;color:var(--mute)}
+.fg{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;padding:20px}.fg label,.dlg label{display:grid;gap:6px;font-weight:500;font-size:13px}.fa{padding:0 20px 20px}
+.mt{margin-top:16px}.hot{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:16px 20px;border-bottom:1px solid var(--line);background:var(--acc2)}.hot b{font-size:18px}.tg{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);gap:24px;padding:20px}.tg svg{width:100%;height:auto;display:block}.gh{margin:0 0 8px;font-size:13px;font-weight:600;color:var(--mute)}.leg{display:flex;gap:16px;color:var(--mute);font-size:12.5px;margin-bottom:4px}.leg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px}@media (max-width:860px){.tg{grid-template-columns:1fr}}.seats{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:10px;padding:16px 20px}.seat{min-height:50px;padding:4px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font:500 14px/1.2 Inter,system-ui,sans-serif;cursor:pointer}.seat:hover{border-color:var(--acc)}textarea{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 11px;min-width:0;width:100%;resize:vertical}
+#modal{position:fixed;inset:0;background:rgba(8,15,30,.55);display:grid;place-items:center;padding:20px;z-index:20}
+.dlg{background:var(--card);width:min(440px,100%);border-radius:14px;padding:22px;display:grid;gap:14px;box-shadow:0 20px 50px rgba(0,0,0,.3)}.dlg h3{margin:0;font-size:17px}.dlg p{margin:0;color:var(--mute)}
+.acts{display:flex;justify-content:flex-end;gap:10px}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(22px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;z-index:30;box-shadow:var(--sh)}
+#login{min-height:100vh;display:grid;grid-template-columns:1.1fr 1fr}
+.lbrand{background:var(--side);color:#fff;padding:56px;display:flex;flex-direction:column;justify-content:center;gap:16px}.lbrand h1{margin:8px 0 0;font-size:32px;font-weight:600;line-height:1.2}.lbrand p{margin:0;color:#aebbd1}
+.lbrand li{list-style:none;color:#c5d0e3;padding:4px 0}.lbrand ul{padding:0;margin:12px 0 0}.lbrand li::before{content:"\2713";color:#6ea0ff;margin-right:10px}
+.lform{align-self:center;justify-self:center;width:min(360px,calc(100% - 40px));display:grid;gap:14px;padding:40px 0}.lform h2{margin:0;font-size:24px}.lform label{display:grid;gap:6px;font-weight:500;font-size:13px}.lform input{padding:10px 12px}
+.err{color:var(--bad);margin:0;min-height:1em}.wide{justify-content:center;width:100%;padding:11px}.hint{color:var(--mute);font-size:12.5px;margin:0}
+@media (max-width:860px){aside{position:static;width:auto;padding:14px 12px}.nvs{display:flex;overflow-x:auto}.nv{width:auto;white-space:nowrap}.me{margin-top:10px}main{margin:0;padding:18px 16px 40px}.g2{grid-template-columns:1fr}#login{grid-template-columns:1fr}.lbrand{padding:32px 24px}}
+.sh{display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--side);color:#fff;padding:14px 32px;flex-wrap:wrap}.sh .brand{padding:0}.shr{display:flex;gap:14px;align-items:center}.shr .b2{background:transparent;color:#fff;border-color:rgba(255,255,255,.3)}.sm2{margin:0 auto;max-width:1100px}@media (max-width:860px){.sh{padding:12px 16px}}.seats{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:10px;padding:4px 20px 16px;max-width:560px}.seat{height:46px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font:500 14px Inter,system-ui,sans-serif;cursor:pointer}.seat:hover{border-color:var(--acc)}.seat.sel{background:var(--acc);color:var(--onacc);border-color:var(--acc)}.seat.taken{background:var(--bg);color:var(--mute);cursor:not-allowed;text-decoration:line-through}.b1:disabled{opacity:.5;cursor:not-allowed}.note{margin:0;padding:14px 20px;background:var(--acc2);color:var(--acc);border-radius:12px 12px 0 0}textarea{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 11px;min-width:0;width:100%;resize:vertical}textarea:focus{outline:0;border-color:var(--acc);box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 22%,transparent)}.faq{padding:6px 20px 16px;display:grid;gap:12px}.faq b{display:block}.g21{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:16px}.g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.tg1{padding:16px 20px}.tg1 svg{width:100%;height:auto;display:block}
+.don{display:flex;gap:20px;align-items:center;padding:16px 20px;flex-wrap:wrap}.don svg{width:140px;height:140px;flex:none}.dl{flex:1;min-width:120px;display:grid;gap:8px}.dl div{display:flex;align-items:center;gap:8px}.dl i{width:10px;height:10px;border-radius:3px;flex:none}.dl span{flex:1}
+.li{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 20px;border-top:1px solid var(--line)}.rk{display:inline-grid;place-items:center;width:20px;height:20px;margin-right:6px;border-radius:50%;background:var(--acc2);color:var(--acc);font-size:11px}
+.dt{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:10px}.dt.a{background:var(--acc)}.dt.g{background:var(--ok)}.dt.y{background:var(--warn)}.dt.r{background:var(--bad)}
+aside{background:var(--card);color:var(--mute);border-right:1px solid var(--line)}aside .brand{color:var(--ink)}aside .nv:hover{background:var(--bg)}aside .nv.on{background:var(--acc2);color:var(--acc)}aside .me{border-top-color:var(--line)}aside .me b{color:var(--ink)}aside .me small{color:var(--mute)}aside .me button{color:var(--mute)}aside .me button:hover{background:var(--bg)}
+@media (max-width:1100px){.g3{grid-template-columns:1fr}}@media (max-width:860px){.g21{grid-template-columns:1fr}}
+@media (max-width:560px){.stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.stat{padding:14px;gap:10px}.ico{width:36px;height:36px}.stat b{font-size:22px}}
+.dlg{max-height:calc(100vh - 32px);max-height:calc(100dvh - 32px);overflow-y:auto}.dlg.big{width:min(620px,100%)}
+.mf{display:grid;gap:14px}.dlg.big .mf{grid-template-columns:1fr 1fr}.dlg.big .mf .wd{grid-column:1/-1}
+.acts{position:sticky;bottom:-22px;background:var(--card);padding:14px 0 0;border-top:1px solid var(--line)}
+@media (max-width:560px){.dlg.big .mf{grid-template-columns:1fr}}
+</style><div id="login"><div class="lbrand"><div class="logo" id="llogo"></div><h1 id="lname"></h1><p>Sign in to book a seat, reserve books and see your loans, fees and receipts.</p></div>
+<form class="lform" id="lf"><div class="seg"><button type="button" data-m="in" class="on">Sign in</button><button type="button" data-m="up">Create account</button></div><h2 id="lh">Student sign in</h2><label id="ln" hidden>Full name<input name="n" autocomplete="name"></label><label id="lph" hidden>Phone number (optional, only used to contact you about fees)<input name="ph" type="tel" autocomplete="tel"></label><label>Email<input name="u" type="email" autocomplete="username"></label><label>Password<input name="p" type="password" autocomplete="current-password"></label><p class="err" id="lerr" role="alert"></p><button class="b1 wide" id="lbtn">Sign in</button><p class="hint" id="lhint"></p><p class="hint">By creating an account you agree to the <a href="#terms" data-go="terms" style="color:var(--acc)">Terms and Conditions</a> and the <a href="#privacy" data-go="privacy" style="color:var(--acc)">Privacy Policy</a>.</p><a class="hint" href="#" data-go="">← Back to the library website</a></form></div>
+<div id="app" hidden><header class="sh"><div class="brand"><div class="logo" id="alogo"></div><span id="aname"></span></div><div class="shr"><span id="who"></span><button class="b2 sm" id="lo">Log out</button></div></header>
+<main class="sm2"><div class="top"><div><h2 id="pt"></h2><div class="mute">Your library account</div></div><a class="b2" href="#" data-go="" style="text-decoration:none">Library website</a></div><div class="seg" id="tabs" style="margin-bottom:16px;max-width:100%;overflow-x:auto"></div><div id="view"></div></main></div><div id="modal" hidden></div><div id="toast" role="status" hidden></div></template>
+<template id="staff-tpl"><style>
+*{box-sizing:border-box}
+:host{--bg:#f6f7f9;--card:#fff;--ink:#171b22;--mute:#667085;--line:#e6e8ec;--acc:#c2410c;--acc2:#fdf0e6;--onacc:#fff;--side:#1c212b;--ok:#047857;--okbg:#d9f5e8;--warn:#b45309;--warnbg:#fdf0d5;--bad:#b91c1c;--badbg:#fde4e4;--sh:0 1px 2px rgba(16,24,40,.06),0 1px 3px rgba(16,24,40,.08);box-sizing:border-box;display:block;position:fixed;inset:0;z-index:200;overflow:auto;background:var(--bg);color:var(--ink);font:14px/1.5 Inter,system-ui,sans-serif;cursor:auto;user-select:text}:host([hidden]){display:none}
+@media (prefers-color-scheme:dark){:host(:not([data-theme="light"])){--bg:#0f1217;--card:#171b22;--ink:#eceff4;--mute:#98a2b3;--line:#2a303b;--acc:#fb923c;--acc2:#3a2415;--onacc:#1a0e05;--side:#0b0e13;--ok:#5be0ac;--okbg:#0f3a2b;--warn:#f5b95a;--warnbg:#3d2c0c;--bad:#ff8f8f;--badbg:#421818}}
+:host([data-theme="dark"]){--bg:#0f1217;--card:#171b22;--ink:#eceff4;--mute:#98a2b3;--line:#2a303b;--acc:#fb923c;--acc2:#3a2415;--onacc:#1a0e05;--side:#0b0e13;--ok:#5be0ac;--okbg:#0f3a2b;--warn:#f5b95a;--warnbg:#3d2c0c;--bad:#ff8f8f;--badbg:#421818}
+button,a{cursor:pointer}
+
+[hidden]{display:none!important}
+svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+aside{position:fixed;top:0;bottom:0;left:0;width:244px;background:var(--side);color:#c5d0e3;display:flex;flex-direction:column;padding:calc(20px + env(safe-area-inset-top,0px)) 14px calc(16px + env(safe-area-inset-bottom,0px))}
+.brand{display:flex;gap:10px;align-items:center;padding:4px 8px 20px;color:#fff;font-weight:600;font-size:15px}
+.logo{width:34px;height:34px;border-radius:9px;background:var(--acc);color:#fff;display:grid;place-items:center;flex:none}
+.nv{display:flex;gap:12px;align-items:center;width:100%;padding:10px 12px;margin-bottom:2px;border:0;border-radius:8px;background:none;color:inherit;font:500 14px Inter,system-ui,sans-serif;cursor:pointer;text-align:left}
+.nv:hover{background:rgba(255,255,255,.06)}.nv.on{background:rgba(255,255,255,.1);color:#fff}
+.me{margin-top:auto;display:flex;align-items:center;gap:10px;padding:14px 8px 0;border-top:1px solid rgba(255,255,255,.1)}
+.av{width:34px;height:34px;border-radius:50%;background:var(--acc);color:#fff;display:grid;place-items:center;font-weight:600;flex:none}
+.me div{flex:1;min-width:0;line-height:1.3}.me .av{flex:none}.me b{display:block;color:#fff;font-weight:500}.me small{color:#8fa0bb}
+.me button{background:none;border:0;color:#c5d0e3;cursor:pointer;padding:6px;border-radius:6px}.me button:hover{background:rgba(255,255,255,.1)}
+main{margin-left:244px;padding:28px 36px 48px;max-width:1280px}
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:22px;flex-wrap:wrap}
+.top h2{margin:0;font-size:22px;font-weight:600;line-height:1.2}.mute{color:var(--mute)}.strong{font-weight:500}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px}
+.stat,.card{background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--sh)}
+.stat{display:flex;gap:14px;padding:18px;align-items:center}
+.ico{width:42px;height:42px;border-radius:10px;display:grid;place-items:center;flex:none}
+.ico.a{background:var(--acc2);color:var(--acc)}.ico.g{background:var(--okbg);color:var(--ok)}.ico.y{background:var(--warnbg);color:var(--warn)}.ico.r{background:var(--badbg);color:var(--bad)}
+.sl{color:var(--mute);font-size:13px}.stat b{font-size:26px;font-weight:600;line-height:1.2;display:block}.ss{color:var(--mute);font-size:12.5px}
+.g2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);gap:16px;margin:16px 0}
+.ch{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--line)}.ch h3{margin:0;font-size:15px;font-weight:600}
+.bars{padding:16px 20px;display:grid;gap:14px}.bar{display:grid;grid-template-columns:96px 1fr 28px;gap:12px;align-items:center}
+.trk{height:8px;background:var(--bg);border-radius:9px;overflow:hidden}.trk i{display:block;height:100%;background:var(--acc);border-radius:9px}
+.tools{display:flex;gap:10px;padding:14px 20px;border-bottom:1px solid var(--line);flex-wrap:wrap;align-items:center}.sp{flex:1}
+.search{position:relative;flex:1 1 220px;max-width:340px}.search svg{position:absolute;left:11px;top:9px;color:var(--mute)}.search input{padding-left:34px;width:100%}
+input,select{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 11px;min-width:0}
+input:focus,select:focus{outline:0;border-color:var(--acc);box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 22%,transparent)}
+.tw{overflow-x:auto}table{width:100%;border-collapse:collapse}
+th{background:var(--bg);color:var(--mute);font-weight:500;font-size:12.5px;text-align:left;padding:10px 20px;white-space:nowrap}
+td{padding:12px 20px;border-top:1px solid var(--line);vertical-align:middle}tr:hover td{background:color-mix(in srgb,var(--acc) 4%,transparent)}.ra{text-align:right;white-space:nowrap}
+.b1,.b2{font:500 14px Inter,system-ui,sans-serif;border-radius:8px;padding:9px 16px;cursor:pointer;display:inline-flex;gap:8px;align-items:center}
+.b1{background:var(--acc);color:var(--onacc);border:1px solid var(--acc)}.b1:hover{filter:brightness(1.08)}
+.b2{background:var(--card);color:var(--ink);border:1px solid var(--line)}.b2:hover{border-color:var(--acc);color:var(--acc)}.b2.sm{padding:5px 12px;font-size:13px}.b1.red{background:var(--bad);border-color:var(--bad);color:var(--card)}
+.ib{width:32px;height:32px;border:0;background:none;color:var(--mute);border-radius:7px;cursor:pointer;display:inline-grid;place-items:center}.ib:hover{background:var(--bg);color:var(--ink)}
+.pill{display:inline-block;padding:2px 10px;border-radius:99px;font-size:12px;font-weight:500;white-space:nowrap}
+.pill.ok{background:var(--okbg);color:var(--ok)}.pill.bad{background:var(--badbg);color:var(--bad)}.pill.info{background:var(--acc2);color:var(--acc)}.pill.warn{background:var(--warnbg);color:var(--warn)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}.seg button{border:0;background:var(--card);color:var(--mute);padding:7px 14px;font:500 13px Inter,system-ui,sans-serif;cursor:pointer}.seg button.on{background:var(--acc2);color:var(--acc)}
+.empty{padding:40px 20px;text-align:center;color:var(--mute)}
+.fg{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;padding:20px}.fg label,.dlg label{display:grid;gap:6px;font-weight:500;font-size:13px}.fa{padding:0 20px 20px}
+.mt{margin-top:16px}.hot{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:16px 20px;border-bottom:1px solid var(--line);background:var(--acc2)}.hot b{font-size:18px}.tg{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);gap:24px;padding:20px}.tg svg{width:100%;height:auto;display:block}.gh{margin:0 0 8px;font-size:13px;font-weight:600;color:var(--mute)}.leg{display:flex;gap:16px;color:var(--mute);font-size:12.5px;margin-bottom:4px}.leg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px}@media (max-width:860px){.tg{grid-template-columns:1fr}}.seats{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:10px;padding:16px 20px}.seat{min-height:50px;padding:4px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font:500 14px/1.2 Inter,system-ui,sans-serif;cursor:pointer}.seat:hover{border-color:var(--acc)}textarea{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 11px;min-width:0;width:100%;resize:vertical}
+#modal{position:fixed;inset:0;background:rgba(8,15,30,.55);display:grid;place-items:center;padding:20px;z-index:20}
+.dlg{background:var(--card);width:min(440px,100%);border-radius:14px;padding:22px;display:grid;gap:14px;box-shadow:0 20px 50px rgba(0,0,0,.3)}.dlg h3{margin:0;font-size:17px}.dlg p{margin:0;color:var(--mute)}
+.acts{display:flex;justify-content:flex-end;gap:10px}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(22px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;z-index:30;box-shadow:var(--sh)}
+#login{min-height:100vh;display:grid;grid-template-columns:1.1fr 1fr}
+.lbrand{background:var(--side);color:#fff;padding:56px;display:flex;flex-direction:column;justify-content:center;gap:16px}.lbrand h1{margin:8px 0 0;font-size:32px;font-weight:600;line-height:1.2}.lbrand p{margin:0;color:#aebbd1}
+.lbrand li{list-style:none;color:#c5d0e3;padding:4px 0}.lbrand ul{padding:0;margin:12px 0 0}.lbrand li::before{content:"\2713";color:#6ea0ff;margin-right:10px}
+.lform{align-self:center;justify-self:center;width:min(360px,calc(100% - 40px));display:grid;gap:14px;padding:40px 0}.lform h2{margin:0;font-size:24px}.lform label{display:grid;gap:6px;font-weight:500;font-size:13px}.lform input{padding:10px 12px}
+.err{color:var(--bad);margin:0;min-height:1em}.wide{justify-content:center;width:100%;padding:11px}.hint{color:var(--mute);font-size:12.5px;margin:0}
+@media (max-width:860px){aside{position:static;width:auto;padding:14px 12px}.nvs{display:flex;overflow-x:auto}.nv{width:auto;white-space:nowrap}.me{margin-top:10px}main{margin:0;padding:18px 16px 40px}.g2{grid-template-columns:1fr}#login{grid-template-columns:1fr}.lbrand{padding:32px 24px}}
+.g21{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:16px}.g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.tg1{padding:16px 20px}.tg1 svg{width:100%;height:auto;display:block}
+.don{display:flex;gap:20px;align-items:center;padding:16px 20px;flex-wrap:wrap}.don svg{width:140px;height:140px;flex:none}.dl{flex:1;min-width:120px;display:grid;gap:8px}.dl div{display:flex;align-items:center;gap:8px}.dl i{width:10px;height:10px;border-radius:3px;flex:none}.dl span{flex:1}
+.li{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 20px;border-top:1px solid var(--line)}.rk{display:inline-grid;place-items:center;width:20px;height:20px;margin-right:6px;border-radius:50%;background:var(--acc2);color:var(--acc);font-size:11px}
+.dt{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:10px}.dt.a{background:var(--acc)}.dt.g{background:var(--ok)}.dt.y{background:var(--warn)}.dt.r{background:var(--bad)}
+aside{background:var(--card);color:var(--mute);border-right:1px solid var(--line)}aside .brand{color:var(--ink)}aside .nv:hover{background:var(--bg)}aside .nv.on{background:var(--acc2);color:var(--acc)}aside .me{border-top-color:var(--line)}aside .me b{color:var(--ink)}aside .me small{color:var(--mute)}aside .me button{color:var(--mute)}aside .me button:hover{background:var(--bg)}
+@media (max-width:1100px){.g3{grid-template-columns:1fr}}@media (max-width:860px){.g21{grid-template-columns:1fr}}
+@media (max-width:560px){.stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.stat{padding:14px;gap:10px}.ico{width:36px;height:36px}.stat b{font-size:22px}}
+.dlg{max-height:calc(100vh - 32px);max-height:calc(100dvh - 32px);overflow-y:auto}.dlg.big{width:min(620px,100%)}
+.mf{display:grid;gap:14px}.dlg.big .mf{grid-template-columns:1fr 1fr}.dlg.big .mf .wd{grid-column:1/-1}
+.acts{position:sticky;bottom:-22px;background:var(--card);padding:14px 0 0;border-top:1px solid var(--line)}
+@media (max-width:560px){.dlg.big .mf{grid-template-columns:1fr}}
+</style>
+<div id="login" hidden>
+<div class="lbrand"><div class="logo" id="llogo"></div><h1 id="lname"></h1><p>Sign in to manage books, members, loans, desks and fees.</p></div>
+<form class="lform" id="lf"><h2>Sign in</h2><p class="mute" style="margin:0">Use your admin account to continue.</p>
+<label>Username<input name="u" autocomplete="username"></label><label>Password<input name="p" type="password" autocomplete="current-password"></label>
+<p class="err" id="lerr" role="alert"></p><button class="b1 wide">Sign in</button><a class="hint" href="#" data-go="">← Back to the library website</a></form>
+</div>
+<div id="app" hidden>
+<aside><div class="brand"><div class="logo" id="alogo"></div><span id="aname"></span></div>
+<div class="nvs" id="nav"></div><a class="nv" href="#" data-go="" style="text-decoration:none;margin-top:6px">Library website</a>
+<div class="me"><div class="av" id="av"></div><div><b id="un"></b><small>Administrator</small></div><button id="lo" title="Log out" aria-label="Log out"></button></div></aside>
+<main><div class="top"><div><h2 id="pt"></h2><div class="mute" id="ps"></div></div><div class="mute" id="dt"></div></div><div id="view"></div></main>
+</div>
+<div id="modal" hidden></div>
+<div id="toast" role="status" hidden></div>
+</template>
+<div class="grain"></div>
+<script>
+const MEM={};
+function lsGet(k,ss){try{const v=(ss?sessionStorage:localStorage).getItem(k);if(v!==null)return v}catch(e){}const m=MEM[(ss?'s:':'l:')+k];return m===undefined?null:m}
+function lsSet(k,v,ss){MEM[(ss?'s:':'l:')+k]=v;try{(ss?sessionStorage:localStorage).setItem(k,v)}catch(e){}}
+function lsDel(k,ss){delete MEM[(ss?'s:':'l:')+k];try{(ss?sessionStorage:localStorage).removeItem(k)}catch(e){}}
+const PAL=[{a:'#1F3FB0',b:'#D9432B',c:'#EFE6D2'},{a:'#D9432B',b:'#141414',c:'#EFE6D2'},{a:'#141414',b:'#D9432B',c:'#EFE6D2'},{a:'#EFE6D2',b:'#1F3FB0',c:'#141414'}];
+const BK0=[
+['Fiction','The Guide','R. K. Narayan',1958,'A tour guide in a small town is mistaken for a holy man, and slowly grows into the role.'],
+['Fiction','Train to Pakistan','Khushwant Singh',1956,'In a border village in 1947, a train arrives carrying the dead, and the village must decide where it stands.'],
+['Fiction','The God of Small Things','Arundhati Roy',1997,'Twin siblings in Kerala carry a childhood tragedy that reshapes their family for decades.'],
+['Technology','Clean Code','Robert C. Martin',2008,'A handbook of software craftsmanship, on writing code that other people can read and maintain.'],
+['Technology','The Pragmatic Programmer','Hunt and Thomas',1999,'Practical advice on the habits and attitudes of effective software developers.'],
+['Technology','Code','Charles Petzold',2000,'A gentle tour of how computers work, starting from flashlights, Morse code and simple switches.'],
+['Science','A Brief History of Time','Stephen Hawking',1988,'Hawking explains the Big Bang, black holes and the nature of time for general readers.'],
+['Science','Cosmos','Carl Sagan',1980,'Carl Sagan’s journey through the universe, and humanity’s long effort to understand it.'],
+['History','Sapiens','Yuval Noah Harari',2011,'A sweeping history of humankind, from early hunter-gatherers to the modern age.'],
+['History','The Discovery of India','Jawaharlal Nehru',1946,'Nehru’s reflections on India’s history, culture and people, written during his imprisonment.'],
+['Biography','Wings of Fire','A. P. J. Abdul Kalam',1999,'The autobiography of A. P. J. Abdul Kalam, from a small town to India’s space and missile programmes.'],
+['Biography','The Story of My Experiments with Truth','M. K. Gandhi',1927,'Gandhi’s autobiography, tracing his early life and the development of his ideas.']];
+const RM=matchMedia('(prefers-reduced-motion:reduce)').matches;
+let BK=[],N=0,CATS=[],COP=3,L=0,LIB='City Central Library',SIG='';
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const ldC=()=>{try{return JSON.parse(lsGet('lms2')||'null')}catch(e){return null}};
+function loadBooks(){const C=ldC();let src;
+if(C&&Array.isArray(C.books))src=C.books.map(b=>[b.category||'General',b.title||'',b.author||'',b.year||'',b.synopsis||'',b.id]);else src=BK0.map(b=>[...b,null]);
+LIB=(C&&C.cfg&&C.cfg.name)||'City Central Library';
+return [...new Set(src.map(b=>b[0]))].flatMap(c=>src.filter(b=>b[0]===c))}
+const $=s=>document.querySelector(s),root=document.documentElement;
+const st=i=>{const p=PAL[i%4];return `--a:${p.a};--b:${p.b};--c:${p.c}`};
+const spine=(b,i)=>`<div class="spn" style="${st(i)};--fs:${Math.min(34,640/b[1].length)}cqw"><i></i><b>${esc(b[1])}</b><s>BOOK</s></div>`;
+const cover=(b,i)=>`<div class="cvr" style="${st(i)}"><small>${esc(b[0])}</small><h4 style="--fs:${b[1].length>24?9.5:b[1].length>14?12.5:15}cqw">${esc(b[1])}</h4><div class="shape s${i%6}"></div><em>${esc(b[2])}</em><span class="bd">BOOK</span></div>`;
+const tapes=[],tabs=$('#tabs'),ind=$('#ind');
+function build(){tapes.forEach(p=>p.el.remove());tapes.length=0;[...tabs.querySelectorAll('button')].forEach(b=>b.remove());
+BK=loadBooks();N=BK.length;CATS=[...new Set(BK.map(b=>b[0]))];COP=Math.max(3,Math.ceil(36/Math.max(N,1)));L=COP*N;SIG=JSON.stringify(BK.map(b=>b.slice(0,6)));
+document.querySelectorAll('.libname').forEach(e=>e.textContent=LIB);document.title=LIB;
+$('#none').hidden=N>0;$('#cnt').textContent=N?N+(N===1?' title':' titles')+' on the shelf':'';document.body.classList.toggle('nobooks',N===0);
+for(let c=0;c<COP;c++)BK.forEach((b,i)=>{const el=document.createElement('div');el.className='tape';el.innerHTML=`<div class="sp">${spine(b,i)}</div><div class="cv">${cover(b,i)}</div>`;$('#stage').appendChild(el);const p={el,sp:el.firstChild,cv:el.lastChild,i,v:c*N+i,lift:0,r:99};tapes.push(p);attachTape(p)});
+if(N)['All',...CATS].forEach(c=>{const b=document.createElement('button');b.className='lbl';b.dataset.c=c;b.innerHTML=`<span>${esc(c)}</span>`;tabs.appendChild(b)});
+hov=-1;active=-1;s=T=Math.floor(COP/2)*N}
+function refreshShelf(){if(JSON.stringify(loadBooks().map(b=>b.slice(0,6)))!==SIG){build();setTab()}}
+let W,Hh,H,ws,d,gap;
+function measure(){W=innerWidth;Hh=innerHeight;H=W<=767?Math.min(W*.6,Hh*.4):Math.min(Hh*.46,W*.31);ws=H*142/840;d=H*474/900;gap=H*.03;
+root.style.setProperty('--H',H+'px');root.style.setProperty('--ws',ws+'px');root.style.setProperty('--d',d+'px');
+const r=$('#ring');r.style.left=(W/2-.5*d-6)+'px';r.style.top=(Hh/2+.36*H)+'px';setTab(true)}
+const sm=x=>x*x*(3-2*x),B=r=>Math.abs(r)<1?(r+Math.sin(Math.PI*r)/Math.PI)/2:Math.sign(r)*.5;
+let CURB=null,RB=null,STAFF=false,s=N,T=N,last=performance.now(),hov=-1,mx=innerWidth/2,my=innerHeight/2,cx=mx,cy=my,tiltX=0,tiltY=0,onCover=false,isOpen=false,active=-1,drag=null,wt,overBtn=false,moved=false;
+build();
+function setTab(){const c=active<0?null:BK[active][0];let t=null;tabs.querySelectorAll('button').forEach(b=>{b.classList.toggle('on',b.dataset.c===c);if(b.dataset.c===c)t=b});
+if(t){ind.style.width=t.offsetWidth+'px';ind.style.transform=`translateX(${t.offsetLeft}px)`}else ind.style.width='0'}
+function roll(id,txt,dir,first){const m=$(id).parentNode,n=document.createElement('span');n.textContent=txt;n.id=id.slice(1);
+if(first){$(id).textContent=txt;return}
+$(id).removeAttribute('id');m.appendChild(n);const o={duration:RM?1:650,easing:'cubic-bezier(.2,.8,.2,1)',fill:'both'};
+[...m.children].forEach(c=>{if(c===n||c._l)return;c._l=1;const cur=getComputedStyle(c).transform;c.animate([{transform:cur==='none'?'none':cur},{transform:`translateY(${-dir*105}%)`}],o).onfinish=()=>c.remove()});
+n.animate([{transform:`translateY(${dir*105}%)`},{transform:'none'}],o)}
+function setActive(i){const first=active<0,dir=Math.sign(T-s)||1;active=i;const b=BK[i];
+roll('#ct',b[1],dir,first);roll('#cs',b[0]+' / '+b[2],dir,first);roll('#cy',String(b[3]||'\u00a0'),dir,first);setTab()}
+function frame(t){const dt=Math.min(.05,(t-last)/1000);last=t;if(!N){requestAnimationFrame(frame);return}
+const a=RM?1:1-Math.exp(-(drag&&drag.on?18:5.2)*dt);s+=(T-s)*a;if(Math.abs(T-s)<1e-4)s=T;
+if(Math.abs(s)>4*N){const sh=Math.round(s/N)*N;s-=sh;T-=sh}
+const ai=((Math.round(s)%N)+N)%N;if(ai!==active)setActive(ai);
+const settled=Math.abs(T-s)<.3;onCover=!isOpen&&settled&&Math.abs(mx-W/2)<.55*d&&Math.abs(my-Hh/2)<.55*H;
+const ty=onCover?(mx-W/2)/(.55*d)*9:(mx-W/2)/W*5,tx=onCover?-(my-Hh/2)/(H/2)*6:0,ta=RM?1:1-Math.exp(-7*dt);tiltY+=(ty-tiltY)*ta;tiltX+=(tx-tiltX)*ta;
+for(const p of tapes){const r=((p.v-s+L/2)%L+L)%L-L/2;p.r=r;const x=r*(ws+gap)+(d-ws+1.6*gap)*B(r);
+if(Math.abs(x)>W/2+1.5*d){p.el.style.visibility='hidden';continue}
+p.el.style.visibility='visible';const o=sm(Math.max(0,1-Math.abs(r)));
+p.lift+=((hov===p.v&&Math.abs(r)>.5?1:0)-p.lift)*(RM?1:1-Math.exp(-12*dt));
+p.el.style.transform=`translate3d(${x}px,${-o*.025*H-p.lift*.045*H}px,${o*.2*H}px) rotateZ(${-4.5*o}deg) rotateX(${tiltX*o}deg) rotateY(${-90*o+tiltY*o}deg)`;
+p.el.style.zIndex=Math.round(100-Math.abs(r)*4);p.sp.style.setProperty('--shade',o*.55);p.cv.style.setProperty('--shade',(1-o)*.5)}
+$('#ring').style.transform=`scale(${isOpen?0:sm(Math.max(0,1-Math.abs(T-s)*3))})`;
+requestAnimationFrame(frame)}
+const near=()=>tapes.reduce((a,p)=>Math.abs(p.r)<Math.abs(a.r)?p:a);
+function attachTape(p){p.el.addEventListener('pointerenter',()=>{if(Math.abs(p.r)>.5)hov=p.v;else hov=-1});p.el.addEventListener('pointerleave',()=>{if(hov===p.v)hov=-1});
+p.el.addEventListener('click',()=>{if(moved||isOpen)return;if(Math.abs(p.r)<.5)openDetail();else T=Math.round(T+p.r)})}
+addEventListener('pointermove',e=>{mx=e.clientX;my=e.clientY;overBtn=!!e.target.closest('button,a')&&!e.target.closest('#shelf')});
+const sh=$('#shelf');
+sh.addEventListener('pointerdown',e=>{drag={x:e.clientX,T0:T,on:false};moved=false});
+addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-drag.x;if(!drag.on&&Math.abs(dx)>5){drag.on=true;moved=true}if(drag.on)T=drag.T0-dx/(ws+gap)});
+addEventListener('pointerup',()=>{if(drag&&drag.on)T=Math.round(T);drag=null;setTimeout(()=>moved=false,0)});
+addEventListener('wheel',e=>{if(isOpen||STAFF)return;const v=Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY;T+=v/(ws+gap)*.5;clearTimeout(wt);wt=setTimeout(()=>T=Math.round(T),160)},{passive:true});
+$('#pv').onclick=()=>{if(!isOpen)T=Math.round(T)-1};$('#nx').onclick=()=>{if(!isOpen)T=Math.round(T)+1};
+tabs.onclick=e=>{const b=e.target.closest('button');if(!b||isOpen)return;const i0=b.dataset.c==='All'?0:BK.findIndex(x=>x[0]===b.dataset.c);const dl=((i0-active+N+N/2)%N)-N/2;T=Math.round(T)+Math.round(dl)};
+addEventListener('keydown',e=>{if(STAFF)return;if(e.key==='Escape'){if(!$('#reader').hidden){closeReader();return}closeDetail()}if(isOpen)return;if(e.key==='ArrowLeft')T=Math.round(T)-1;if(e.key==='ArrowRight')T=Math.round(T)+1;if(e.key==='Enter'&&document.activeElement===document.body)openDetail()});
+$('#ring').onclick=openDetail;$('#cl').onclick=closeDetail;$('#bk').onclick=closeDetail;
+const det=$('#det');let anims=[];
+const clipFrom=()=>{const r=near().cv.getBoundingClientRect();return {ox:(r.left+r.width/2)+'px '+(r.top+r.height/2)+'px',c:`inset(${r.top}px ${innerWidth-r.right}px ${innerHeight-r.bottom}px ${r.left}px round 3px)`}};
+function openDetail(){if(isOpen||active<0)return;isOpen=true;T=Math.round(T);const b=BK[active],f=clipFrom();
+$('#dsub').textContent=b[0]+' / '+b[2];$('#dt').textContent=b[1];$('#dm').textContent=(b[3]?b[3]+' / ':'')+b[0];$('#dsy').textContent=b[4]||'';const C2=ldC(),cb=b[5]&&C2&&C2.books?C2.books.find(x=>x.id===b[5]):null,av=cb?cb.copies-(C2.loans||[]).filter(l=>!l.returned&&l.bookId===cb.id).length:null;$('#dc').textContent=av===null?'':av>0?av+' of '+cb.copies+' copies available to borrow.':'All copies are on loan right now.';CURB=cb;$('#rd').hidden=!(cb&&((cb.readText||'').trim()||cb.readUrl));const rvs=cb&&C2&&C2.reviews?C2.reviews.filter(x=>x.bookId===cb.id):[],avg=rvs.length?rvs.reduce((a,x)=>a+x.rating,0)/rvs.length:0,star=f=>`<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><polygon points="12,2 15,9 22,9.5 16.5,14 18,21 12,17.5 6,21 7.5,14 2,9.5 9,9" style="fill:${f?'var(--cobalt)':'none'};stroke:var(--cobalt);stroke-width:1.5;stroke-linejoin:round"/></svg>`;
+$('#drv').innerHTML=!cb?'':rvs.length?`<span style="display:flex;align-items:center;gap:8px;font:500 13px 'Inter Tight',sans-serif"><span style="display:inline-flex;gap:2px">${[1,2,3,4,5].map(i=>star(i<=Math.round(avg))).join('')}</span>${avg.toFixed(1)} out of 5, ${rvs.length} review${rvs.length===1?'':'s'}</span>`+[...rvs].sort((a,b)=>b.at-a.at).slice(0,3).map(x=>{const mm=(C2.members||[]).find(m=>m.id===x.memberId);return `<span style="display:block;margin-top:10px;font:400 15px/1.5 Newsreader,Georgia,serif"><b style="font:600 12px 'Inter Tight',sans-serif">${esc((mm?mm.name:'A reader').split(' ')[0])}</b> <span style="font:500 11px 'Inter Tight',sans-serif;color:var(--muted)">Verified borrower, ${x.rating} out of 5</span><br>${esc(x.text||'')}</span>`}).join(''):`<span style="font:500 13px 'Inter Tight',sans-serif;color:var(--muted)">No reviews yet. Students who borrow this book can rate it from their account.</span>`;
+$('#poster').innerHTML=cover(b,active);det.style.visibility='visible';det.style.transformOrigin=f.ox;
+const E=RM?1:1;anims.forEach(a=>a.cancel());anims=[];
+anims.push(det.animate([{clipPath:f.c,transform:'rotate(-4.5deg)'},{clipPath:'inset(0px 0px 0px 0px round 0px)',transform:'rotate(0deg)'}],{duration:RM?1:1050,easing:'cubic-bezier(.76,0,.18,1)',fill:'both'}));
+det.querySelectorAll('.rs').forEach((e,i)=>anims.push(e.animate([{transform:'translateY(110%)'},{transform:'none'}],{duration:RM?1:900,delay:RM?0:620+i*75,easing:'cubic-bezier(.2,.8,.2,1)',fill:'both'})));
+anims.push($('#poster').animate([{clipPath:'circle(0% at 50% 40%)'},{clipPath:'circle(110% at 50% 40%)'}],{duration:RM?1:1250,delay:RM?0:520,easing:'cubic-bezier(.33,1,.68,1)',fill:'both'}))}
+function closeDetail(){if(!isOpen)return;const f=clipFrom();det.style.transformOrigin=f.ox;
+const a=det.animate([{clipPath:'inset(0px 0px 0px 0px round 0px)',transform:'rotate(0deg)'},{clipPath:f.c,transform:'rotate(-4.5deg)'}],{duration:RM?1:850,easing:'cubic-bezier(.76,0,.18,1)',fill:'both'});
+a.onfinish=()=>{det.style.visibility='hidden';anims.forEach(x=>x.cancel());a.cancel();anims=[];isOpen=false}}
+function progress(){const b=$('#rbody'),m=b.scrollHeight-b.clientHeight;$('#rbar').style.width=(m>0?Math.min(100,b.scrollTop/m*100):0)+'%'}
+function readPos(){try{return JSON.parse(lsGet('lms2_pos')||'{}')}catch(e){return {}}}
+function openReader(cb){RB=cb;const R=$('#reader');R.style.setProperty('--rf',(parseInt(lsGet('lms2_fs'),10)||20)+'px');$('#rtitle').textContent=cb.title;
+const paras=String(cb.readText||'').split(/\n\s*\n/).map(s=>s.trim()).filter(Boolean);
+$('#rin').innerHTML='<h1>'+esc(cb.title)+'</h1><p class="by">'+esc(cb.author)+'</p>'+paras.map(p=>/^(chapter|part|book|section|prologue|epilogue)\b/i.test(p)&&p.length<80?'<h2>'+esc(p)+'</h2>':'<p>'+esc(p)+'</p>').join('');
+R.hidden=false;$('#rbody').scrollTop=readPos()[cb.id]||0;progress()}
+function closeReader(){if(RB){const p=readPos();p[RB.id]=$('#rbody').scrollTop;lsSet('lms2_pos',JSON.stringify(p))}$('#reader').hidden=true}
+$('#rbody').addEventListener('scroll',progress);
+$('#rback').onclick=closeReader;
+const fsz=d=>{const R=$('#reader'),n=Math.max(15,Math.min(30,(parseInt(getComputedStyle(R).getPropertyValue('--rf'),10)||20)+d));R.style.setProperty('--rf',n+'px');lsSet('lms2_fs',String(n))};
+$('#rminus').onclick=()=>fsz(-2);$('#rplus').onclick=()=>fsz(2);
+$('#rd').onclick=()=>{const cb=CURB;if(!cb)return;if((cb.readText||'').trim())openReader(cb);else if(cb.readUrl){const a=document.createElement('a');a.href=cb.readUrl;a.target='_blank';a.rel='noopener noreferrer';a.click()}};
+addEventListener('resize',measure);
+(document.fonts?document.fonts.ready:Promise.resolve()).then(()=>setTab());
+measure();requestAnimationFrame(frame);
+const stf=$('#staff'),SR=stf.attachShadow({mode:'open'});SR.appendChild($('#staff-tpl').content.cloneNode(true));
+const stu=$('#student'),SR2=stu.attachShadow({mode:'open'});SR2.appendChild($('#student-tpl').content.cloneNode(true));
+function fixForms(r){r.addEventListener('click',e=>{const b=e.target&&e.target.closest?e.target.closest('button'):null;if(!b||b.type!=='submit'||!b.form)return;e.preventDefault();b.form.dispatchEvent(new Event('submit',{cancelable:true,bubbles:true}))},true)}
+fixForms(SR);fixForms(SR2);
+const LEGAL={
+privacy:{t:'Privacy Policy',h:()=>{const S2=(t,a)=>`<h2>${t}</h2>${a.map(x=>`<p>${x}</p>`).join('')}`,n=esc(LIB);return [
+S2('Who this policy covers',[`This policy explains how ${n} handles personal information on this website. It applies to students and staff who create an account or use the staff area.`]),
+S2('What we collect',['Account details: your name, email address and password.','Library records: books you borrow and return, fines, seat bookings, book orders, fee payments and receipts, desk, shift and locker assignments, and fee reminders sent to you.','Messages: requests you send through Help and support, and the replies from staff.','Reading preferences: your place in a book and your text size, saved in the browser.','Contact details you choose to give: an optional phone number.','Payment information: the UPI reference number you enter when you tell us you have paid. We never see or store your card or bank account numbers.','Reviews: the ratings and reviews you write.','We do not ask for card or bank details on this website.']),
+S2('Where your information is stored',['In this version of the website, information is saved in the web browser of the device being used, in the browser’s local storage and session storage. It is not sent to a server run by us. This means people who use the same browser on the same device see the same stored records, and clearing the browser’s site data removes them.']),
+S2('Cookies and tracking',['This website does not set cookies and does not use analytics, advertising or tracking tools.','To display text, the website loads fonts from Google Fonts. Your browser contacts Google’s servers to fetch them, and Google may receive your IP address as part of that request.']),
+S2('How we use your information',['We use it to run library services: creating your account, tracking loans and due dates, calculating fines, managing seat and desk bookings, taking book reservations, recording fees and answering your requests. We do not sell your information or use it for advertising. If you gave a phone number or email, staff may contact you about pending fees by phone, SMS, WhatsApp or email.']),
+S2('Who can see it',['Library staff who sign in to the staff area can see student records. Your first name, rating and review text are shown publicly next to the book you review. Anyone with access to the same browser profile may also be able to see stored data. We do not share your information with other organizations.']),
+S2('Keeping information safe',['Passwords are stored in the browser with other records and are not encrypted. Choose a password you do not use anywhere else, and sign out when you use a shared computer.']),
+S2('How long we keep it',['Records stay in the browser until a staff member deletes them or the browser’s site data is cleared. You can ask the library to remove your account and records.']),
+S2('Your choices',['You can ask the library desk to correct or delete your information at any time.']),
+S2('Students under 18',['Students under 18 should use this website with the knowledge of a parent or guardian.']),
+S2('Changes to this policy',['If this policy changes, the new version will be posted on this page with a new date.']),
+S2('Contact',[`To ask a question about this policy, contact the library desk at ${n}.`])].join('')}},
+terms:{t:'Terms and Conditions',h:()=>{const S2=(t,a)=>`<h2>${t}</h2>${a.map(x=>`<p>${x}</p>`).join('')}`,n=esc(LIB);return [
+S2('Using this website',['By creating an account or using this website you agree to these terms. If you do not agree, please do not use it.']),
+S2('Accounts',['Give accurate information and keep your password private. You are responsible for activity under your account. Tell the library desk if you think someone else has used it.']),
+S2('Borrowing books',['Books are lent for the loan period set by the library, which is shown in your account. A late return can add a fine at the daily rate set by the library. Lost or damaged books may need to be paid for, as decided by the library.']),
+S2('Seat and desk bookings',['A seat booking is for the date and time slot shown. Please cancel a booking you cannot use. Desks, shifts and lockers are assigned by library staff, and the monthly fee for a shift applies while it is assigned to you.']),
+S2('Book orders and fees',['Reserving a book on this website does not take payment. You pay at the library desk when you collect it. Fees are also paid at the library desk, where staff record the payment and issue a receipt. Prices and fees are set by the library and may change. Payments made by UPI go straight to the library’s UPI ID, and a payment counts once library staff confirm it.']),
+S2('Reviews',['Reviews must be honest and respectful. Only students who have borrowed a book can review it. The library may remove reviews that break these rules.']),
+S2('Acceptable use',['Do not try to access other people’s accounts, damage the website or enter false information.']),
+S2('Suspending an account',['The library may suspend or remove an account that breaks these terms.']),
+S2('Availability of the website and information',['The website is provided as it is. Information such as book availability reflects the library’s records and may differ from what is on the shelf.']),
+S2('Liability',['To the extent the law allows, the library is not responsible for losses that result from using this website, including lost or unavailable data.']),
+S2('Changes to these terms',['These terms may be updated. If you keep using the website after an update, you accept the new terms.']),
+S2('Governing law',['These terms are governed by the laws that apply where the library operates.']),
+S2('Contact',[`Questions about these terms can be sent to the library desk at ${n}.`])].join('')}}};
+function apply(n){const lg=n==='privacy'||n==='terms';STAFF=n==='staff'||n==='student'||lg;stf.hidden=n!=='staff';stu.hidden=n!=='student';$('#legal').hidden=!lg;if(lg){$('#lt').textContent=LEGAL[n].t;$('#lb').innerHTML=LEGAL[n].h();$('#legal').scrollTop=0}if(n==='student')stu.dispatchEvent(new Event('show'));if(n==='staff')stf.dispatchEvent(new Event('show'))}
+function route(){apply(location.hash.slice(1))}
+function go(n){const was=STAFF;apply(n);if(was&&!STAFF)refreshShelf();try{history.replaceState(null,'',n?'#'+n:location.pathname+location.search)}catch(e){try{location.hash=n}catch(x){}}}
+document.addEventListener('click',e=>{const a=e.composedPath().find(x=>x.dataset&&x.dataset.go!==undefined);if(a){e.preventDefault();go(a.dataset.go)}},true);
+addEventListener('hashchange',route);route();
+(function(document){
+
+const $=(s,r=document)=>r.querySelector(s),DAY=864e5,now=()=>Date.now();
+const ld=(k,ss)=>{try{return JSON.parse(lsGet(k,ss)||'null')}catch(e){return null}};
+const sv=(k,v,ss)=>{lsSet(k,JSON.stringify(v),ss)};
+const uid=p=>p+Math.random().toString(36).slice(2,8);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=t=>new Date(t).toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'});
+const DEFSH=[{id:'s1',name:'Morning',time:'6 AM to 12 PM',fee:600},{id:'s2',name:'Afternoon',time:'12 PM to 6 PM',fee:600},{id:'s3',name:'Evening',time:'6 PM to 12 AM',fee:500}];
+const shifts=()=>S.cfg.shifts||DEFSH,ND=()=>S.cfg.desks||30,NL=()=>S.cfg.lockers||20;
+const shOf=m=>shifts().find(x=>x.id===m.shiftId);
+const ym=t=>{const d=new Date(t);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')};
+const monthsFrom=t=>{const o=[],s=new Date(t),n=new Date();let y=s.getFullYear(),m=s.getMonth();while(y<n.getFullYear()||(y===n.getFullYear()&&m<=n.getMonth())){o.push(y+'-'+String(m+1).padStart(2,'0'));m++;if(m>11){m=0;y++}}return o};
+const duesOf=m=>{const sh=shOf(m);if(!sh)return{months:[],amount:0};const paid=new Set((S.payments||[]).filter(p=>p.memberId===m.id).map(p=>p.month)),months=monthsFrom(m.start||m.joined||Date.now()).filter(x=>!paid.has(x));return{months,amount:months.length*sh.fee}};
+const monLabel=s=>{const a=s.split('-');return new Date(a[0],a[1]-1,1).toLocaleDateString(undefined,{month:'short',year:'numeric'})};
+const rs=v=>{v=Math.round(v*100)/100;return Number.isInteger(v)?String(v):v.toFixed(2)};
+function sendRemind(m,by){const d=duesOf(m);if(!d.months.length)return null;const n={id:'n'+Math.random().toString(36).slice(2,8),memberId:m.id,kind:'fee',text:'Your fee of ₹'+rs(d.amount)+' is pending for '+d.months.map(monLabel).join(', ')+'. Please pay at the library desk.',at:Date.now(),read:false,by};(S.notes=S.notes||[]).push(n);(S.remind=S.remind||{})[m.id]=n.at;return n}
+function autoRemind(){if(S.cfg.autoRemind===false)return;const gap=(S.cfg.remindDays||7)*864e5;let ch=false;S.members.forEach(m=>{if(duesOf(m).months.length&&Date.now()-((S.remind||{})[m.id]||0)>=gap){sendRemind(m,'auto');ch=true}});if(ch)save()}
+const isoD=d=>new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,10);
+let dsh=null;
+function monthFin(){const cm=ym(now()),collected=(S.payments||[]).filter(p=>ym(p.at)===cm).reduce((a,p)=>a+p.amount,0),spent=(S.expenses||[]).filter(e=>e.date.slice(0,7)===cm).reduce((a,e)=>a+e.amount,0);let dues=0,students=0;S.members.forEach(m=>{const d=duesOf(m);if(d.months.length){dues+=d.amount;students++}});return{collected,spent,profit:collected-spent,dues,students}}
+function finStats(){const f=monthFin();return `<div class="stats mt">${stat('book','Fees collected','₹'+rs(f.collected),'This month','g')}${stat('alert','Fees pending','₹'+rs(f.dues),f.students+' student'+(f.students===1?'':'s')+' with dues','r')}${stat('swap','Expenses','₹'+rs(f.spent),'This month','y')}${stat('grid','Profit',(f.profit<0?'-':'')+'₹'+rs(Math.abs(f.profit)),'Fees collected minus expenses','a')}</div>`}
+function vDesks(){const sh=shifts(),cur=sh.find(x=>x.id===dsh)?dsh:sh[0].id;dsh=cur;
+const dk=n=>S.members.find(m=>m.shiftId===cur&&m.desk===n),lk=n=>S.members.find(m=>m.locker===n),tk='background:var(--acc2);color:var(--acc);border-color:var(--acc)';
+return `<div class="card"><div class="tools"><div class="seg" style="max-width:100%;overflow-x:auto">${sh.map(x=>`<button data-a="pickShift" data-id="${x.id}" class="${x.id===cur?'on':''}">${esc(x.name)}, ${esc(x.time)}</button>`).join('')}</div><span class="sp"></span><span class="mute">${S.members.filter(m=>m.shiftId===cur&&m.desk).length} of ${ND()} desks taken</span></div><div class="seats">${Array.from({length:ND()},(_,i)=>{const n=i+1,h=dk(n);return `<button class="seat" style="${h?tk:''}" data-a="desk" data-id="${n}" title="${h?esc(h.name):'Free'}">${n}${h?`<br><small style="font-size:10px">${esc(h.name.split(' ')[0])}</small>`:''}</button>`}).join('')}</div></div>
+<div class="card mt"><div class="ch"><h3>Lockers</h3><span class="mute">${S.members.filter(m=>m.locker).length} of ${NL()} in use</span></div><div class="seats">${Array.from({length:NL()},(_,i)=>{const n=i+1,h=lk(n);return `<button class="seat" style="${h?tk:''}" data-a="locker" data-id="${n}" title="${h?esc(h.name):'Free'}">${n}${h?`<br><small style="font-size:10px">${esc(h.name.split(' ')[0])}</small>`:''}</button>`}).join('')}</div></div>`}
+function vFees(){autoRemind();const ms=S.members,pays=[...(S.payments||[])].sort((a,b)=>b.at-a.at),rem=[...(S.notes||[])].sort((a,b)=>b.at-a.at).slice(0,8),anyDue=ms.some(m=>duesOf(m).months.length);
+return `${claimsCard()}<div class="card"><div class="tools"><h3 style="margin:0;font-size:15px">Student fees</h3><span class="sp"></span>${anyDue?'<button class="b2" data-a="remindAll">Remind everyone with pending fees</button>':''}</div>${ms.length?`<div class="tw"><table><tr><th>Student</th><th>Plan</th><th>Monthly fee</th><th>Pending</th><th>Status</th><th></th></tr>${ms.map(m=>{const sh=shOf(m),du=duesOf(m);return `<tr><td class="strong">${esc(m.name)}</td><td>${sh?esc(sh.name)+(m.desk?', desk '+m.desk:''):'<span class="mute">No plan yet</span>'}</td><td>${sh?'₹'+rs(sh.fee):'-'}</td><td>${du.months.length?du.months.map(monLabel).join(', ')+' (₹'+rs(du.amount)+')':'-'}</td><td>${sh?`<span class="pill ${du.months.length?'bad':'ok'}">${du.months.length?'Due':'Paid up'}</span>`:'<span class="pill info">Not set</span>'}</td><td class="ra">${sh?`<button class="b1" data-a="payFee" data-id="${m.id}">Add payment</button>${du.months.length?` <button class="b2" data-a="remind" data-id="${m.id}">Remind</button> <button class="b2" data-a="contact" data-id="${m.id}">Contact</button>`:''}`:`<button class="b2" data-a="setPlan" data-id="${m.id}">Set plan</button>`}</td></tr>`}).join('')}</table></div>`:'<div class="empty">No students yet. Add a member first.</div>'}</div>
+<div class="card mt"><div class="ch"><h3>Receipts</h3></div>${pays.length?`<div class="tw"><table><tr><th>No.</th><th>Student</th><th>Month</th><th>Amount</th><th>Method</th><th>Paid on</th><th></th></tr>${pays.map(p=>`<tr><td class="strong">#${p.no}</td><td>${mnm(p.memberId)}</td><td>${monLabel(p.month)}</td><td>₹${rs(p.amount)}</td><td>${esc(p.method)}</td><td>${fmt(p.at)}</td><td class="ra"><button class="b2 sm" data-a="viewRcpt" data-id="${p.id}">View receipt</button></td></tr>`).join('')}</table></div>`:'<div class="empty">No fees collected yet.</div>'}</div>
+<div class="card mt"><div class="ch"><h3>Reminders sent</h3></div>${rem.length?rem.map(n=>`<div class="li"><span>${mnm(n.memberId)}<span class="mute" style="display:block">${esc(n.text)}</span></span><span class="mute">${n.by==='auto'?'Automatic':'Staff'}, ${ago(n.at)}</span></div>`).join(''):'<div class="empty">No reminders sent yet.</div>'}</div>`}
+const payMonths=m=>{const paid=new Set((S.payments||[]).filter(p=>p.memberId===m.id).map(p=>p.month)),o=[],s=new Date(m.start||m.joined||now()),n=new Date(),end=new Date(n.getFullYear(),n.getMonth()+2,1);let y=s.getFullYear(),mo=s.getMonth();while(new Date(y,mo,1)<=end){const k=y+'-'+String(mo+1).padStart(2,'0');if(!paid.has(k))o.push(k);mo++;if(mo>11){mo=0;y++}}return o};
+function vExp(){const ex=[...(S.expenses||[])].sort((a,b)=>a.date<b.date?1:-1),f=monthFin();
+return `<div class="stats">${stat('book','Fees collected','₹'+rs(f.collected),'This month','g')}${stat('swap','Expenses','₹'+rs(f.spent),'This month','y')}${stat('grid','Profit',(f.profit<0?'-':'')+'₹'+rs(Math.abs(f.profit)),'Fees collected minus expenses','a')}</div>
+<div class="card mt"><div class="tools"><h3 style="margin:0;font-size:15px">Expenses</h3><span class="sp"></span><button class="b1" data-a="addExp">${ic('plus')}Add expense</button></div>${ex.length?`<div class="tw"><table><tr><th>Date</th><th>Category</th><th>Note</th><th>Amount</th><th></th></tr>${ex.map(e=>`<tr><td>${esc(e.date)}</td><td><span class="pill info">${esc(e.category)}</span></td><td class="mute">${esc(e.note||'-')}</td><td class="strong">₹${rs(e.amount)}</td><td class="ra">${ib('delExp',e.id,'trash','Remove')}</td></tr>`).join('')}</table></div>`:'<div class="empty">No expenses yet.</div>'}</div>`}
+function studySettings(){return `<div class="card mt"><div class="ch"><h3>Study center</h3></div><div class="fg">${shifts().map((x,i)=>`<label>Shift ${i+1} name<input id="sn${i}" value="${esc(x.name)}"></label><label>Time<input id="st${i}" value="${esc(x.time)}"></label><label>Monthly fee (₹)<input id="sf${i}" type="number" min="0" value="${x.fee}"></label>`).join('')}<label>Number of desks<input id="nd" type="number" min="1" value="${ND()}"></label><label>Number of lockers<input id="nl" type="number" min="0" value="${NL()}"></label></div><div class="fa"><button class="b1" data-a="saveStudy">Save study center settings</button></div></div>
+<div class="card mt"><div class="ch"><h3>UPI payments and contact</h3></div><div class="fg"><label>UPI ID of the library<input id="upi" value="${esc(S.cfg.upiId||'')}" placeholder="name@bank"></label><label>Name shown to payers<input id="upn" value="${esc(S.cfg.upiName||'')}"></label><label>Default country code<input id="ccd" value="${esc(S.cfg.cc||'91')}"></label></div><div class="fa"><p class="mute" style="margin-top:0">Students pay straight to this UPI ID from any UPI app, then enter the reference number. You confirm each payment on the Fees page. Card payments and automatic messages need the server, which this version does not have.</p><button class="b1" data-a="saveUpi">Save</button></div></div>
+<div class="card mt"><div class="ch"><h3>Fee reminders</h3></div><div class="fg"><label>Automatic reminders<select id="ra"><option value="on"${S.cfg.autoRemind===false?'':' selected'}>On</option><option value="off"${S.cfg.autoRemind===false?' selected':''}>Off</option></select></label><label>Remind again after (days)<input id="rd" type="number" min="1" value="${S.cfg.remindDays||7}"></label></div><div class="fa"><p class="mute" style="margin-top:0">Students with pending fees get a notification in their account, created when they sign in or when staff open the Dashboard or Fees page. Real emails, SMS or WhatsApp messages need a server, which this version does not have.</p><button class="b1" data-a="saveRemind">Save reminder settings</button></div></div>
+<div class="card mt"><div class="ch"><h3>Import students</h3></div><div class="fa" style="padding-top:20px"><p class="mute" style="margin-top:0">Paste one student per line as: name, email, shift, desk. Shift and desk are optional. Imported students get the password student123.</p><textarea id="csv" rows="6" placeholder="Simran Kaur, simran@example.com, Morning, 4"></textarea><div style="margin-top:12px"><button class="b1" data-a="importCsv">Import students</button></div></div></div>`}
+function rcpt(id){const p=S.payments.find(x=>x.id===id),m=mem(p.memberId)||{},sh=shOf(m);
+const row=(a,b)=>`<span style="display:flex;justify-content:space-between;gap:16px;padding:7px 0;border-bottom:1px dashed var(--line)"><span>${a}</span><b style="color:var(--ink);text-align:right">${b}</b></span>`;
+modal('Fee receipt',[],'Print receipt',()=>{try{window.print()}catch(e){}return false},`<span style="display:block;color:var(--ink);text-align:center;padding-bottom:8px"><b style="font-size:16px">${esc(S.cfg.name)}</b><br><span style="color:var(--mute)">Receipt #${p.no}</span></span><span style="display:block">${row('Student',esc(m.name||'Removed student'))}${row('Shift',sh?esc(sh.name)+', '+esc(sh.time):'-')}${row('Desk',m.desk||'-')}${row('For month',monLabel(p.month))}${row('Method',esc(p.method)+(p.utr?' ('+esc(p.utr)+')':''))}${row('Paid on',fmt(p.at))}${row('Amount received','₹'+rs(p.amount))}</span>`)}
+const P={grid:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
+book:'<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"/><path d="M4 19.5V21h16"/>',
+users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6.5 6.5 0 0 1 3.5 6"/>',
+swap:'<path d="M4 8h14l-3-3M20 16H6l3 3"/>',gear:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9L7 7M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/>',
+out:'<path d="M9 4H5v16h4M16 8l4 4-4 4M20 12H9"/>',plus:'<path d="M12 5v14M5 12h14"/>',edit:'<path d="M4 20h4L19 9l-4-4L4 16zM13 7l4 4"/>',
+trash:'<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>',search:'<circle cx="11" cy="11" r="6"/><path d="M20 20l-4-4"/>',alert:'<path d="M12 4l9 16H3zM12 10v4M12 17v.5"/>'};
+const ic=n=>`<svg class="i" viewBox="0 0 24 24" aria-hidden="true">${P[n]}</svg>`;
+const ln=(b,m,ago,ret)=>{const i=now()-ago*DAY,due=i+14*DAY,r=ret!=null?now()-ret*DAY:null;return{id:uid('l'),bookId:b,memberId:m,issued:i,due,returned:r,fine:r?Math.max(0,Math.ceil((r-due)/DAY))*2:0}};
+const mk=(id,title,author,isbn,category,copies,year,synopsis)=>({id,title,author,isbn,category,copies,year,synopsis,price:299,stock:5});
+function seed(){const t=now();return{cfg:{name:'City Central Library',fine:2,days:14},
+books:[mk('b1','The Guide','R. K. Narayan','','Fiction',3,1958,'A tour guide in a small town is mistaken for a holy man, and slowly grows into the role.'),mk('b2','Train to Pakistan','Khushwant Singh','','Fiction',2,1956,'In a border village in 1947, a train arrives carrying the dead, and the village must decide where it stands.'),mk('b3','Clean Code','Robert C. Martin','','Technology',2,2008,'A handbook of software craftsmanship, on writing code that other people can read and maintain.'),mk('b4','A Brief History of Time','Stephen Hawking','','Science',2,1988,'Hawking explains the Big Bang, black holes and the nature of time for general readers.'),mk('b5','The Pragmatic Programmer','Hunt and Thomas','','Technology',1,1999,'Practical advice on the habits and attitudes of effective software developers.'),mk('b6','Sapiens','Yuval Noah Harari','','History',3,2011,'A sweeping history of humankind, from early hunter-gatherers to the modern age.'),mk('b7','Wings of Fire','A. P. J. Abdul Kalam','','Biography',2,1999,'The autobiography of A. P. J. Abdul Kalam, from a small town to India’s space and missile programmes.'),mk('b8','The Discovery of India','Jawaharlal Nehru','','History',1,1946,'Nehru’s reflections on India’s history, culture and people, written during his imprisonment.'),mk('b9','The God of Small Things','Arundhati Roy','','Fiction',2,1997,'Twin siblings in Kerala carry a childhood tragedy that reshapes their family for decades.'),mk('b10','Code','Charles Petzold','','Technology',1,2000,'A gentle tour of how computers work, starting from flashlights, Morse code and simple switches.'),mk('b11','Cosmos','Carl Sagan','','Science',2,1980,'Carl Sagan’s journey through the universe, and humanity’s long effort to understand it.'),mk('b12','The Story of My Experiments with Truth','M. K. Gandhi','','Biography',2,1927,'Gandhi’s autobiography, tracing his early life and the development of his ideas.')],
+members:[{id:'m1',name:'Simran Kaur',email:'simran@example.com',joined:t-200*DAY,shiftId:'s1',desk:4,locker:2,start:t-70*DAY},{id:'m2',name:'Arjun Mehta',email:'arjun@example.com',joined:t-120*DAY,shiftId:'s2',desk:7,start:t-40*DAY},{id:'m3',name:'Priya Sharma',email:'priya@example.com',joined:t-60*DAY,shiftId:'s1',desk:5,locker:5,start:t-35*DAY},{id:'m4',name:'Rohan Gill',email:'rohan@example.com',joined:t-15*DAY}],
+loans:[ln('b4','m2',20),ln('b3','m1',5),ln('b1','m3',16),ln('b6','m4',3),ln('b2','m1',30,20),ln('b7','m2',25,5),ln('b4','m1',9,2),ln('b4','m3',12,6),ln('b3','m4',8,1),ln('b6','m2',22,10),ln('b1','m4',2),ln('b4','m4',1)],payments:[{id:'p1',memberId:'m1',month:ym(t-70*DAY),amount:600,method:'Cash',at:t-66*DAY,no:1001},{id:'p2',memberId:'m1',month:ym(t-35*DAY),amount:600,method:'UPI',at:t-31*DAY,no:1002},{id:'p3',memberId:'m3',month:ym(t-35*DAY),amount:600,method:'Cash',at:t-33*DAY,no:1003},{id:'p4',memberId:'m3',month:ym(t),amount:600,method:'UPI',at:t-3*DAY,no:1004},{id:'p5',memberId:'m2',month:ym(t-40*DAY),amount:600,method:'Cash',at:t-38*DAY,no:1005},{id:'p6',memberId:'m2',month:ym(t),amount:600,method:'Cash',at:t-2*DAY,no:1006}],expenses:[{id:'e1',date:new Date(t-12*DAY).toISOString().slice(0,10),category:'Electricity',note:'Sample expense',amount:500},{id:'e2',date:new Date(t-8*DAY).toISOString().slice(0,10),category:'Internet',note:'Sample expense',amount:300},{id:'e3',date:new Date(t-5*DAY).toISOString().slice(0,10),category:'Maintenance',note:'Sample expense',amount:150}],rcpt:1006}}
+let S=ld('lms2')||seed(),CR=ld('lms2_admin')||{u:'admin',p:'admin123'},IN=ld('lms2_in',1)===1,page='dashboard',f={q:'',cat:'',lf:'all'};
+const save=()=>sv('lms2',S);save();
+const book=id=>S.books.find(b=>b.id===id),mem=id=>S.members.find(m=>m.id===id);
+const out=id=>S.loans.filter(l=>!l.returned&&l.bookId===id).length,avail=b=>b.copies-out(b.id);
+const late=l=>!l.returned&&l.due<now(),fineFor=l=>Math.max(0,Math.ceil(((l.returned||now())-l.due)/DAY))*S.cfg.fine;
+const bt=l=>esc(book(l.bookId)?.title||'Removed book'),mn=l=>esc(mem(l.memberId)?.name||'Removed member');
+function toast(t){const e=$('#toast');e.textContent=t;e.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>e.hidden=true,2800)}
+function modal(title,fs,ok,fn,text){const m=$('#modal');
+m.innerHTML=`<form class="dlg${fs.length>4||fs.some(x=>x.ta)?' big':''}" novalidate><h3>${title}</h3>${text?`<p>${text}</p>`:''}<div class="mf">${fs.map(x=>`<label${x.w?' class="wd"':''}>${x.l}${x.o?`<select name="${x.k}">${x.o.map(o=>`<option value="${esc(o[0])}"${o[0]==x.v?' selected':''}>${esc(o[1])}</option>`).join('')}</select>`:x.ta?`<textarea name="${x.k}" rows="${x.ta}">${esc(x.v)}</textarea>`:`<input name="${x.k}" type="${x.t||'text'}" value="${esc(x.v)}"${x.t==='number'?' min="'+(x.mn??1)+'" step="'+(x.st||'any')+'"':''}>`}</label>`).join('')}</div><div class="acts"><button type="button" class="b2" data-x>Cancel</button><button class="b1">${ok}</button></div></form>`;
+m.hidden=false;const fm=$('form',m);fm.elements[0].focus();
+m.onclick=e=>{if(e.target===m||e.target.dataset.x!==undefined)m.hidden=true};
+fm.onsubmit=e=>{e.preventDefault();if(fn(Object.fromEntries(new FormData(fm)))!==false)m.hidden=true}}
+const ib=(a,id,i,t)=>`<button class="ib" data-a="${a}" data-id="${id}" title="${t}" aria-label="${t}">${ic(i)}</button>`;
+const stat=(i,l,v,s,t)=>`<div class="stat"><span class="ico ${t}">${ic(i)}</span><div><div class="sl">${l}</div><b>${v}</b><div class="ss">${s}</div></div></div>`;
+const status=l=>l.returned?'<span class="pill ok">Returned</span>':late(l)?`<span class="pill bad">Overdue, ${Math.ceil((now()-l.due)/DAY)}d</span>`:'<span class="pill info">On loan</span>';
+const loanRows=(r,act)=>`<div class="tw"><table><tr><th>Book</th><th>Member</th><th>Due</th><th>Status</th>${act?'<th>Fine</th><th></th>':''}</tr>${r.map(l=>`<tr><td class="strong">${bt(l)}</td><td>${mn(l)}</td><td>${fmt(l.due)}</td><td>${status(l)}</td>${act?`<td>${l.returned?(l.fine?'₹'+l.fine:'-'):late(l)?'₹'+fineFor(l):'-'}</td><td class="ra">${l.returned?'':`<button class="b2 sm" data-a="ret" data-id="${l.id}">Mark returned</button>`}</td>`:''}</tr>`).join('')}</table></div>`;
+function trendRows(){const since=now()-30*DAY,c={};
+S.loans.filter(l=>l.issued>=since).forEach(l=>{(c[l.bookId]=c[l.bookId]||{l:0,o:0}).l++});
+(S.orders||[]).filter(o=>o.at>=since&&o.status!=='Cancelled').forEach(o=>{(c[o.bookId]=c[o.bookId]||{l:0,o:0}).o+=o.qty||1});
+return Object.entries(c).map(([id,v])=>({b:book(id),...v,n:v.l+v.o})).filter(x=>x.b).sort((a,b)=>b.n-a.n).slice(0,5)}
+function weekCounts(){const t=now(),w=[0,0,0,0],add=ts=>{const a=Math.floor((t-ts)/(7*DAY));if(a>=0&&a<4)w[3-a]++};
+S.loans.forEach(l=>add(l.issued));(S.orders||[]).filter(o=>o.status!=='Cancelled').forEach(o=>add(o.at));return w}
+const clip=(s,n)=>s.length>n?s.slice(0,n-1)+'…':s;
+function barSVG(r){if((document.host?document.host.clientWidth:1000)<700)return barCompact(r);const mx=Math.max(3,...r.map(x=>x.n)),st=mx<=5?1:Math.ceil(mx/5),M=Math.ceil(mx/st)*st,X0=230,W=380,RH=54,H=r.length*RH+46,sx=v=>X0+v/M*W;
+let g='';for(let v=0;v<=M;v+=st)g+=`<line x1="${sx(v)}" x2="${sx(v)}" y1="8" y2="${H-30}" style="stroke:var(--line)"/><text x="${sx(v)}" y="${H-10}" text-anchor="middle" style="fill:var(--mute);font-size:12px">${v}</text>`;
+const bars=r.map((x,i)=>{const y=16+i*RH,top=i===0,lw=x.l/M*W,tw=x.n/M*W;
+return `<g><title>${esc(x.b.title)}: ${x.l} borrowed, ${x.o} bought</title><circle cx="16" cy="${y+14}" r="12" style="fill:${top?'var(--acc)':'var(--acc2)'}"/><text x="16" y="${y+18.5}" text-anchor="middle" style="fill:${top?'var(--onacc)':'var(--acc)'};font-size:12px;font-weight:600">${i+1}</text><text x="38" y="${y+11}" style="fill:var(--ink);font-size:13px;font-weight:600">${esc(clip(x.b.title,26))}</text><text x="38" y="${y+28}" style="fill:var(--mute);font-size:12px">${esc(clip(x.b.author,28))}</text><rect x="${X0}" y="${y+2}" width="${tw}" height="24" rx="6" style="fill:var(--ok)"/>${x.l?`<rect x="${X0}" y="${y+2}" width="${lw}" height="24" rx="6" style="fill:var(--acc)"/>`:''}<text x="${X0+tw+8}" y="${y+19}" style="fill:var(--ink);font-size:13px;font-weight:600">${x.n}</text></g>`}).join('');
+return `<svg viewBox="0 0 640 ${H}" role="img" aria-label="Most borrowed and bought books in the last 30 days">${g}${bars}</svg>`}
+function barCompact(r){const mx=Math.max(3,...r.map(x=>x.n)),st=mx<=5?1:Math.ceil(mx/5),M=Math.ceil(mx/st)*st,X0=14,W=290,RH=64,H=r.length*RH+34,sx=v=>X0+v/M*W;
+let g='';for(let v=0;v<=M;v+=st)g+=`<line x1="${sx(v)}" x2="${sx(v)}" y1="4" y2="${H-26}" style="stroke:var(--line)"/><text x="${sx(v)}" y="${H-8}" text-anchor="middle" style="fill:var(--mute);font-size:12px">${v}</text>`;
+const bars=r.map((x,i)=>{const y=8+i*RH,lw=x.l/M*W,tw=x.n/M*W;return `<g><title>${esc(x.b.title)}: ${x.l} borrowed, ${x.o} bought</title><text x="14" y="${y+12}" style="fill:var(--ink);font-size:13.5px;font-weight:600">${i+1}. ${esc(clip(x.b.title,30))}</text><text x="14" y="${y+28}" style="fill:var(--mute);font-size:12px">${esc(clip(x.b.author,34))}</text><rect x="${X0}" y="${y+34}" width="${tw}" height="18" rx="5" style="fill:var(--ok)"/>${x.l?`<rect x="${X0}" y="${y+34}" width="${lw}" height="18" rx="5" style="fill:var(--acc)"/>`:''}<text x="${X0+tw+8}" y="${y+48}" style="fill:var(--ink);font-size:13px;font-weight:600">${x.n}</text></g>`}).join('');
+return `<svg viewBox="0 0 360 ${H}" role="img" aria-label="Most borrowed and bought books in the last 30 days">${g}${bars}</svg>`}
+function colSVG(w){const mx=Math.max(3,...w),st=mx<=5?1:Math.ceil(mx/5),M=Math.ceil(mx/st)*st,L=34,PW=270,PH=150,T=16,lab=['3 wks ago','2 wks ago','Last week','This week'],sy=v=>T+PH-v/M*PH;
+let g='';for(let v=0;v<=M;v+=st)g+=`<line x1="${L}" x2="${L+PW}" y1="${sy(v)}" y2="${sy(v)}" style="stroke:var(--line)"/><text x="${L-8}" y="${sy(v)+4}" text-anchor="end" style="fill:var(--mute);font-size:12px">${v}</text>`;
+const cs=w.map((v,i)=>{const bw=44,x=L+14+i*(PW-28)/4+((PW-28)/4-bw)/2,y=sy(v);return `<g><title>${lab[i]}: ${v}</title><rect x="${x}" y="${y}" width="${bw}" height="${T+PH-y}" rx="6" style="fill:${i===3?'var(--acc)':'color-mix(in srgb,var(--acc) 45%,var(--card))'}"/><text x="${x+bw/2}" y="${y-6}" text-anchor="middle" style="fill:var(--ink);font-size:13px;font-weight:600">${v}</text><text x="${x+bw/2}" y="${T+PH+20}" text-anchor="middle" style="fill:var(--mute);font-size:11.5px">${lab[i]}</text></g>`}).join('');
+return `<svg viewBox="0 0 320 ${T+PH+34}" role="img" aria-label="Borrowing and purchases per week">${g}${cs}</svg>`}
+function trendCard(){const r=trendRows(),t=r[0];
+return `<div class="card"><div class="ch"><h3>Trending books this month</h3><span class="mute">Last 30 days</span></div>${r.length?`<div class="hot"><span class="pill ok">#1 right now</span><b>${esc(t.b.title)}</b><span class="mute">by ${esc(t.b.author)}, ${t.n} time${t.n===1?'':'s'} borrowed or bought</span></div><div class="tg"><div><h4 class="gh">Top 5 books</h4><div class="leg"><span><i style="background:var(--acc)"></i>Borrowed</span><span><i style="background:var(--ok)"></i>Bought</span></div>${barSVG(r)}</div><div><h4 class="gh">Activity by week</h4>${colSVG(weekCounts())}</div></div>`:'<div class="empty">No loans or purchases in the last 30 days yet.</div>'}</div>`}
+const ago=t=>{const m=Math.floor((now()-t)/6e4);if(m<1)return 'just now';if(m<60)return m+' min ago';const h=Math.floor(m/60);if(h<24)return h+(h===1?' hour ago':' hours ago');const d=Math.floor(h/24);return d+(d===1?' day ago':' days ago')};
+function dailyCounts(){const c=Array(36).fill(0),t=now(),add=ts=>{const a=Math.floor((t-ts)/DAY);if(a>=0&&a<36)c[35-a]++};S.loans.forEach(l=>add(l.issued));(S.orders||[]).filter(o=>o.status!=='Cancelled').forEach(o=>add(o.at));return c.map((_,i)=>c.slice(Math.max(0,i-6),i+1).reduce((a,x)=>a+x,0)).slice(6)}
+function lineSVG(a){const cp=(document.host?document.host.clientWidth:1000)<700,VW=cp?360:640,mx=Math.max(3,...a),st=mx<=5?1:Math.ceil(mx/5),M=Math.ceil(mx/st)*st,L=34,R=VW-20,T=14,B=190,x=i=>L+i/(a.length-1)*(R-L),y=v=>B-v/M*(B-T),dl=i=>new Date(now()-(29-i)*DAY).toLocaleDateString(undefined,{day:'numeric',month:'short'});
+let g='';for(let v=0;v<=M;v+=st)g+=`<line x1="${L}" x2="${R}" y1="${y(v)}" y2="${y(v)}" style="stroke:var(--line)"/><text x="${L-8}" y="${y(v)+4}" text-anchor="end" style="fill:var(--mute);font-size:12px">${v}</text>`;
+const line='M'+a.map((v,i)=>x(i).toFixed(1)+','+y(v).toFixed(1)).join(' L'),area=line+` L${R},${B} L${L},${B} Z`;
+const labs=(cp?[0,14,29]:[0,7,14,21,29]).map(i=>`<text x="${x(i)}" y="${B+20}" text-anchor="middle" style="fill:var(--mute);font-size:12px">${dl(i)}</text>`).join('');
+const dots=a.map((v,i)=>i===a.length-1?`<circle cx="${x(i)}" cy="${y(v)}" r="3.5" style="fill:var(--card);stroke:var(--acc);stroke-width:2"><title>${dl(i)}: ${v}</title></circle>`:'').join('');
+return `<svg viewBox="0 0 ${VW} 224" role="img" aria-label="Loans and purchases, rolling 7-day total over the last 30 days">${g}<path d="${area}" style="fill:color-mix(in srgb,var(--acc) 14%,transparent)"/><path d="${line}" style="fill:none;stroke:var(--acc);stroke-width:2.2;stroke-linejoin:round"/>${dots}${labs}</svg>`}
+function donutHTML(){const c={};S.books.forEach(b=>{const k=b.category||'General';c[k]=(c[k]||0)+b.copies});let e=Object.entries(c).sort((a,b)=>b[1]-a[1]);const tot=e.reduce((a,x)=>a+x[1],0);
+if(!tot)return '<div class="empty">No books yet.</div>';
+if(e.length>5)e=[...e.slice(0,4),['Other',e.slice(4).reduce((a,x)=>a+x[1],0)]];
+const col=['var(--acc)','var(--ok)','#4f7cac','#be185d','var(--mute)'],R=54,C=2*Math.PI*R;let off=0;
+const segs=e.map(([k,v],i)=>{const len=v/tot*C,s=`<circle cx="70" cy="70" r="${R}" fill="none" style="stroke:${col[i]}" stroke-width="18" stroke-dasharray="${len.toFixed(2)} ${(C-len).toFixed(2)}" stroke-dashoffset="${(-off).toFixed(2)}" transform="rotate(-90 70 70)"><title>${esc(k)}: ${v}</title></circle>`;off+=len;return s}).join('');
+return `<div class="don"><svg viewBox="0 0 140 140" role="img" aria-label="Copies by category"><circle cx="70" cy="70" r="${R}" fill="none" style="stroke:var(--line)" stroke-width="18"/>${segs}<text x="70" y="68" text-anchor="middle" style="fill:var(--ink);font-size:22px;font-weight:600">${tot}</text><text x="70" y="86" text-anchor="middle" style="fill:var(--mute);font-size:11px">copies</text></svg><div class="dl">${e.map(([k,v],i)=>`<div><i style="background:${col[i]}"></i><span>${esc(k)}</span><b>${v}</b></div>`).join('')}</div></div>`}
+const listCard=(t,s,r)=>`<div class="card"><div class="ch"><h3>${t}</h3><span class="mute">${s}</span></div>${r.length?r.map((x,i)=>`<div class="li"><span><b class="rk">${i+1}</b>${x.a}${x.s?`<span class="mute" style="display:block;margin-left:26px">${x.s}</span>`:''}</span><span class="strong">${x.b}</span></div>`).join(''):'<div class="empty">Nothing to show yet.</div>'}</div>`;
+function topBy(keyFn,labelFn,unit){const since=now()-30*DAY,c={};S.loans.filter(l=>l.issued>=since).forEach(l=>{const k=keyFn(l);if(k)c[k]=(c[k]||0)+1});return Object.entries(c).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([k,n])=>({a:labelFn(k),b:n+' '+unit+(n===1?'':'s')}))}
+const topAuthors=()=>topBy(l=>book(l.bookId)?.author,k=>esc(k),'loan'),activeMembers=()=>topBy(l=>mem(l.memberId)?.id,k=>mnm(k),'loan');
+function lowAvail(){return S.books.map(b=>({b,av:b.copies-out(b.id)})).filter(x=>x.b.copies>0&&x.av<=1).sort((a,b)=>a.av-b.av).slice(0,5).map(x=>({a:esc(x.b.title),s:esc(x.b.author),b:x.av===0?'All on loan':'1 left'}))}
+function feed(){const ev=[],bt=id=>esc(book(id)?.title||'a removed book');
+S.loans.forEach(l=>{ev.push({t:l.issued,x:`${mnm(l.memberId)} borrowed ${bt(l.bookId)}`,k:'a'});if(l.returned)ev.push({t:l.returned,x:`${mnm(l.memberId)} returned ${bt(l.bookId)}`,k:'g'})});
+(S.payments||[]).forEach(p=>ev.push({t:p.at,x:`${mnm(p.memberId)} paid ₹${rs(p.amount)}, receipt #${p.no}`,k:'g'}));
+(S.seats||[]).forEach(s=>ev.push({t:s.at||0,x:`${mnm(s.memberId)} booked seat ${s.seat}`,k:'a'}));
+(S.orders||[]).forEach(o=>ev.push({t:o.at,x:`${mnm(o.memberId)} reserved ${bt(o.bookId)}`,k:'y'}));
+(S.tickets||[]).forEach(t=>ev.push({t:t.at,x:`${mnm(t.memberId)} sent a support request`,k:'r'}));
+const r=ev.filter(e=>e.t).sort((a,b)=>b.t-a.t).slice(0,8);
+return r.length?r.map(e=>`<div class="li"><span><i class="dt ${e.k}"></i>${e.x}</span><span class="mute">${ago(e.t)}</span></div>`).join(''):'<div class="empty">No activity yet.</div>'}
+function vDash(){autoRemind();const open=S.loans.filter(l=>!l.returned),od=open.filter(late),owed=od.reduce((a,l)=>a+fineFor(l),0),tot=S.books.reduce((a,b)=>a+b.copies,0);
+return `<div class="stats">${stat('book','Total copies',tot,`${S.books.length} titles`,'a')}${stat('users','Members',S.members.length,'Registered readers','g')}${stat('swap','On loan',open.length,`${tot-open.length} copies available`,'y')}${stat('alert','Overdue',od.length,`₹${owed} in fines`,'r')}</div>${finStats()}
+<div class="g21 mt"><div class="card"><div class="ch"><h3>Borrowing trends</h3><span class="mute">Loans and purchases, 7-day total</span></div><div class="tg1">${lineSVG(dailyCounts())}</div></div><div class="card"><div class="ch"><h3>Books by category</h3></div>${donutHTML()}</div></div>
+<div class="mt">${trendCard()}</div>
+<div class="g3 mt">${listCard('Top authors','Last 30 days',topAuthors())}${listCard('Most active members','Last 30 days',activeMembers())}${listCard('Low availability','Copies left on the shelf',lowAvail())}</div>
+<div class="g2 mt" style="grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)"><div class="card"><div class="ch"><h3>Overdue items</h3></div>${od.length?loanRows(od):'<div class="empty">Nothing is overdue.</div>'}</div><div class="card"><div class="ch"><h3>Recent activity</h3></div>${feed()}</div></div>`}
+const tBooks=()=>{const q=f.q.toLowerCase(),r=S.books.filter(b=>(b.title+b.author+b.isbn).toLowerCase().includes(q)&&(!f.cat||b.category===f.cat));
+return r.length?`<div class="tw"><table><tr><th>Book</th><th>ISBN</th><th>Category</th><th>Availability</th><th></th></tr>${r.map(b=>`<tr><td><div class="strong">${esc(b.title)}${(b.readText||b.readUrl)?' <span class="pill ok">Readable</span>':''}</div><div class="mute">${esc(b.author)}</div></td><td class="mute">${esc(b.isbn||'-')}</td><td><span class="pill info">${esc(b.category)}</span></td><td><span class="pill ${avail(b)?'ok':'bad'}">${avail(b)} of ${b.copies} in</span></td><td class="ra">${ib('editBook',b.id,'edit','Edit')}${ib('readBook',b.id,'book','Reading content')}${ib('delBook',b.id,'trash','Remove')}</td></tr>`).join('')}</table></div>`:'<div class="empty">No books match your search.</div>'};
+const tMem=()=>{const q=f.q.toLowerCase(),r=S.members.filter(m=>(m.name+m.email).toLowerCase().includes(q));
+return r.length?`<div class="tw"><table><tr><th>Member</th><th>Books held</th><th>Joined</th><th></th></tr>${r.map(m=>`<tr><td><div style="display:flex;gap:12px;align-items:center"><span class="av" style="background:var(--acc2);color:var(--acc)">${esc(m.name[0]||'?').toUpperCase()}</span><div><div class="strong">${esc(m.name)}</div><div class="mute">${esc(m.email)}</div></div></div></td><td>${S.loans.filter(l=>!l.returned&&l.memberId===m.id).length}</td><td class="mute">${fmt(m.joined)}</td><td class="ra">${ib('editMember',m.id,'edit','Edit')}${ib('delMember',m.id,'trash','Remove')}</td></tr>`).join('')}</table></div>`:'<div class="empty">No members match your search.</div>'};
+const tLoans=()=>{const r=[...S.loans].sort((a,b)=>b.issued-a.issued).filter(l=>f.lf==='all'||(f.lf==='open'&&!l.returned)||(f.lf==='late'&&late(l))||(f.lf==='done'&&l.returned));
+return r.length?loanRows(r,1):'<div class="empty">No loans in this view.</div>'};
+const search=ph=>`<div class="search">${ic('search')}<input data-f="q" value="${esc(f.q)}" placeholder="${ph}" aria-label="${ph}"></div>`;
+const TBL={books:tBooks,members:tMem,loans:tLoans};
+const mnm=id=>esc(mem(id)?.name||'Removed member');
+function vSeats(){const r=[...(S.seats||[])].sort((a,b)=>a.date<b.date?-1:1);return `<div class="card">${r.length?`<div class="tw"><table><tr><th>Student</th><th>Date</th><th>Time</th><th>Seat</th><th></th></tr>${r.map(x=>`<tr><td class="strong">${mnm(x.memberId)}</td><td>${esc(x.date)}</td><td>${esc(x.slot)}</td><td>Seat ${x.seat}</td><td class="ra">${ib('cxSeat',x.id,'trash','Cancel booking')}</td></tr>`).join('')}</table></div>`:'<div class="empty">No seat bookings yet.</div>'}</div>`}
+function vOrders(){const r=[...(S.orders||[])].sort((a,b)=>b.at-a.at);return `<div class="card">${r.length?`<div class="tw"><table><tr><th>Student</th><th>Book</th><th>Total</th><th>Ordered</th><th>Status</th><th></th></tr>${r.map(o=>`<tr><td class="strong">${mnm(o.memberId)}</td><td>${esc(book(o.bookId)?.title||'Removed book')}</td><td>₹${o.total}</td><td>${fmt(o.at)}</td><td><span class="pill ${o.status==='Collected'?'ok':o.status==='Cancelled'?'bad':'warn'}">${o.status}</span></td><td class="ra">${o.status==='Reserved'?`<button class="b2 sm" data-a="collect" data-id="${o.id}">Mark paid and collected</button>`:''}</td></tr>`).join('')}</table></div>`:'<div class="empty">No orders yet.</div>'}</div>`}
+const tpill=s=>s==='Resolved'?'ok':s==='Answered'?'info':'warn';
+function vSupport(){const r=[...(S.tickets||[])].sort((a,b)=>b.at-a.at);return r.length?r.map(t=>`<div class="card mt"><div class="ch"><h3>${esc(t.subject)}</h3><span class="pill ${tpill(t.status)}">${t.status}</span></div><div style="padding:16px 20px;display:grid;gap:10px"><div class="mute">${mnm(t.memberId)}, ${esc(t.category)}, ${fmt(t.at)}</div><div>${esc(t.message)}</div>${t.replies.map(x=>`<div style="border-left:3px solid var(--acc);padding-left:12px"><div class="mute">Staff, ${fmt(x.at)}</div>${esc(x.text)}</div>`).join('')}${t.status==='Resolved'?'':`<div style="display:flex;gap:8px"><button class="b1" data-a="replyT" data-id="${t.id}">Reply</button><button class="b2" data-a="resolveT" data-id="${t.id}">Mark resolved</button></div>`}</div></div>`).join(''):'<div class="card"><div class="empty">No support requests yet.</div></div>'}
+function vReviews(){const r=[...(S.reviews||[])].sort((a,b)=>b.at-a.at);return `<div class="card">${r.length?`<div class="tw"><table><tr><th>Book</th><th>Student</th><th>Rating</th><th>Review</th><th>Date</th><th></th></tr>${r.map(x=>`<tr><td class="strong">${esc(book(x.bookId)?.title||'Removed book')}</td><td>${mnm(x.memberId)}</td><td>${x.rating} of 5</td><td>${esc(x.text||'')||'<span class="mute">No text</span>'}</td><td>${fmt(x.at)}</td><td class="ra">${ib('delReview',x.id,'trash','Remove review')}</td></tr>`).join('')}</table></div>`:'<div class="empty">No reviews yet. Students who have borrowed a book can rate it from their account.</div>'}</div>`}
+function claimsCard(){const c=(S.claims||[]).filter(x=>x.status==='Pending').sort((a,b)=>a.at-b.at);if(!c.length)return '';
+return `<div class="card" style="margin-bottom:16px"><div class="ch"><h3>UPI payments to confirm</h3><span class="mute">Check your UPI app or bank before confirming</span></div><div class="tw"><table><tr><th>Student</th><th>For</th><th>Amount</th><th>UPI reference</th><th>Sent</th><th></th></tr>${c.map(x=>`<tr><td class="strong">${mnm(x.memberId)}</td><td>${x.months.map(monLabel).join(', ')}</td><td>₹${rs(x.amount)}</td><td>${esc(x.utr)}</td><td>${ago(x.at)}</td><td class="ra"><button class="b1" data-a="confirmClaim" data-id="${x.id}">Confirm</button> <button class="b2" data-a="rejectClaim" data-id="${x.id}">Reject</button></td></tr>`).join('')}</table></div></div>`}
+const V={reviews:vReviews,desks:vDesks,fees:vFees,expenses:vExp,support:vSupport,seats:vSeats,orders:vOrders,dashboard:vDash,
+books:()=>{const cs=[...new Set(S.books.map(b=>b.category))];return `<div class="card"><div class="tools">${search('Search title, author or ISBN')}<select data-f="cat" aria-label="Category"><option value="">All categories</option>${cs.map(c=>`<option${c===f.cat?' selected':''}>${esc(c)}</option>`).join('')}</select><span class="sp"></span><button class="b1" data-a="addBook">${ic('plus')}Add book</button></div><div id="tbl">${tBooks()}</div></div>`},
+members:()=>`<div class="card"><div class="tools">${search('Search name or email')}<span class="sp"></span><button class="b1" data-a="addMember">${ic('plus')}Add member</button></div><div id="tbl">${tMem()}</div></div>`,
+loans:()=>`<div class="card"><div class="tools"><div class="seg">${[['all','All'],['open','On loan'],['late','Overdue'],['done','Returned']].map(([k,l])=>`<button data-a="seg" data-id="${k}" class="${f.lf===k?'on':''}">${l}</button>`).join('')}</div><span class="sp"></span><button class="b1" data-a="issue">${ic('plus')}Issue book</button></div><div id="tbl">${tLoans()}</div></div>`,
+settings:()=>`<div class="card"><div class="ch"><h3>Library</h3></div><div class="fg"><label>Library name<input id="cn" value="${esc(S.cfg.name)}"></label><label>Fine per late day (₹)<input id="cf" type="number" min="0" step="0.5" value="${S.cfg.fine}"></label><label>Loan period (days)<input id="cd" type="number" min="1" value="${S.cfg.days}"></label></div><div class="fa"><button class="b1" data-a="saveCfg">Save library settings</button></div></div>
+<div class="card mt"><div class="ch"><h3>Admin account</h3></div><div class="fg"><label>Username<input id="su" value="${esc(CR.u)}"></label><label>New password<input id="sp" type="password" placeholder="Leave blank to keep current"></label></div><div class="fa"><button class="b1" data-a="saveAcc">Update account</button></div></div>
+${studySettings()}<div class="card mt"><div class="ch"><h3>Data</h3></div><div class="fa" style="padding-top:20px"><p class="mute" style="margin-top:0">Everything is stored in this browser. Delete all data empties the library so you can start with your own books. Load sample data replaces everything with demo books, members and loans.</p><div style="display:flex;gap:10px;flex-wrap:wrap"><button class="b2" data-a="clearAll">Delete all data</button><button class="b2" data-a="reset">Load sample data</button></div></div></div>`};
+const T={dashboard:['Dashboard','Overview of your library today'],books:['Books','Manage your catalog'],members:['Members','People who borrow from you'],loans:['Loans','Issue and return books'],settings:['Settings','Library and account'],seats:['Seat bookings','Reading room reservations'],orders:['Book orders','Books students want to buy'],support:['Support','Questions and problems from students'],reviews:['Reviews','Ratings and reviews written by students'],desks:['Desks and lockers','Assign study desks, shifts and lockers'],fees:['Fees','Collect monthly fees and print receipts'],expenses:['Expenses','Track costs and monthly profit']};
+const NAV=[['dashboard','grid','Dashboard'],['books','book','Books'],['members','users','Members'],['loans','swap','Loans'],['desks','grid','Desks and lockers'],['fees','swap','Fees'],['expenses','edit','Expenses'],['seats','book','Seat bookings'],['orders','swap','Orders'],['reviews','edit','Reviews'],['support','alert','Support'],['settings','gear','Settings']];
+function bookForm(b){modal(b?'Edit book':'Add a book',[{k:'title',l:'Title',w:1,v:b?.title},{k:'author',l:'Author',w:1,v:b?.author},{k:'isbn',l:'ISBN',v:b?.isbn},{k:'category',l:'Category',v:b?.category},{k:'copies',l:'Copies',t:'number',st:1,v:b?.copies??1},{k:'price',l:'Price to buy (₹), 0 if not for sale',t:'number',mn:0,v:b?.price??299},{k:'stock',l:'Copies for sale, 0 if none',t:'number',mn:0,st:1,v:b?.stock??5},{k:'year',l:'Year published (optional)',v:b?.year||''},{k:'syn',l:'Short description (optional)',w:1,v:b?.synopsis||''}],b?'Save changes':'Add book',d=>{const c=Number(d.copies);
+if(!d.title.trim()||!d.author.trim()){toast('Enter a title and an author.');return false}
+if(!Number.isInteger(c)||c<1){toast('Copies must be a whole number, 1 or more.');return false}
+if(d.price!==''&&!(Number(d.price)>=0)){toast('Price must be 0 or more.');return false}
+if(d.stock!==''&&!(Number.isInteger(Number(d.stock))&&Number(d.stock)>=0)){toast('Copies for sale must be a whole number, 0 or more.');return false}
+if(b&&c<out(b.id)){toast(`${out(b.id)} copies are on loan, so copies can’t go lower.`);return false}
+const o={title:d.title.trim(),author:d.author.trim(),isbn:d.isbn.trim(),category:d.category.trim()||'General',copies:c,price:Math.max(0,parseFloat(d.price)||0),stock:Math.max(0,parseInt(d.stock,10)||0),year:d.year.trim(),synopsis:d.syn.trim()};
+b?Object.assign(b,o):S.books.push({id:uid('b'),...o});save();render();toast(b?'Book updated.':'Book added.')})}
+function memForm(m){modal(m?'Edit member':'Add a member',[{k:'name',l:'Full name',v:m?.name},{k:'email',l:'Email',t:'email',v:m?.email},{k:'phone',l:'Phone number (optional)',v:m?.phone||''},{k:'pw',l:'Student password',v:m?.pw||''}],m?'Save changes':'Add member',d=>{if(!d.name.trim()){toast('Enter the member’s name.');return false}
+m?Object.assign(m,{name:d.name.trim(),email:d.email.trim(),phone:d.phone.trim(),pw:d.pw.trim()||m.pw||'student123'}):S.members.push({id:uid('m'),name:d.name.trim(),email:d.email.trim(),joined:now(),phone:d.phone.trim(),pw:d.pw.trim()||'student123'});save();render();toast(m?'Member updated.':'Member added.')},'Students sign in with their email and this password. Leave it blank to use student123.')}
+const ACT={delReview:id=>{S.reviews=(S.reviews||[]).filter(x=>x.id!==id);save();render();toast('Review removed.')},
+confirmClaim:id=>{const c=S.claims.find(x=>x.id===id),m=c&&mem(c.memberId);if(!m||c.status!=='Pending')return;modal('Confirm payment',[],'Yes, I received it',()=>{const per=c.amount/c.months.length,nos=[];c.months.forEach(mo=>{const p={id:uid('p'),memberId:m.id,month:mo,amount:per,method:'UPI',utr:c.utr,at:now(),no:S.rcpt=(S.rcpt||1000)+1};(S.payments=S.payments||[]).push(p);nos.push(p.no)});c.status='Confirmed';save();render();toast('Confirmed. Receipt '+nos.map(n=>'#'+n).join(', ')+' created.')},'Confirm only after you see ₹'+rs(c.amount)+' with reference '+esc(c.utr)+' in your UPI app or bank statement.')},
+rejectClaim:id=>{const c=S.claims.find(x=>x.id===id);if(!c)return;modal('Reject this payment',[{k:'why',l:'Reason shown to the student',w:1,v:''}],'Reject',d=>{c.status='Rejected';c.note=d.why.trim();save();render();toast('Payment rejected.')})},
+saveUpi:()=>{const u=$('#upi').value.trim(),n=$('#upn').value.trim(),cc=$('#ccd').value.replace(/\D/g,'');if(u&&!/^[A-Za-z0-9._-]{2,}@[A-Za-z]{2,}$/.test(u))return toast('Enter a UPI ID like name@bank.');if(u&&!n)return toast('Enter the name shown to payers.');S.cfg.upiId=u;S.cfg.upiName=n;S.cfg.cc=cc||'91';save();render();toast('Saved.')},
+contact:id=>{const m=mem(id),d=duesOf(m),cc=S.cfg.cc||'91';let ph=(m.phone||'').replace(/\D/g,'');if(ph.length===10)ph=cc+ph;
+const msg='Hello '+m.name.split(' ')[0]+', this is a reminder from '+S.cfg.name+': your fee of ₹'+rs(d.amount)+' is pending for '+d.months.map(monLabel).join(', ')+'. Please pay at the library desk'+(S.cfg.upiId?' or by UPI to '+S.cfg.upiId:'')+'. Thank you.',e=encodeURIComponent(msg);
+const lk=(h,t,ok,why)=>ok?`<a class="b2" style="display:flex;justify-content:center;text-decoration:none;margin-top:8px" href="${h}" target="_blank" rel="noopener noreferrer">${t}</a>`:`<span class="mute" style="display:block;margin-top:8px">${t}: not available (${why})</span>`;
+modal('Contact '+esc(m.name),[],'Close',()=>{},`<span style="display:block;color:var(--ink)">${esc(msg)}</span>`+lk('https://wa.me/'+ph+'?text='+e,'Send on WhatsApp',!!ph,'no phone number')+lk('sms:+'+ph+'?body='+e,'Send an SMS',!!ph,'no phone number')+lk('mailto:'+encodeURIComponent(m.email||'')+'?subject='+encodeURIComponent('Fee reminder')+'&body='+e,'Send an email',!!m.email,'no email'))},
+readBook:id=>{const b=book(id);modal('Reading content for '+esc(b.title),[{k:'url',l:'Link to read online (optional)',w:1,v:b.readUrl||''},{k:'txt',l:'Book text (optional). Separate paragraphs with a blank line.',w:1,ta:12,v:b.readText||''}],'Save',d=>{const u=d.url.trim();if(u&&!/^https?:\/\//i.test(u)){toast('The link must start with http:// or https://');return false}if(d.txt.length>1500000){toast('The text is too long. The limit is about 1.5 million characters.');return false}b.readUrl=u;b.readText=d.txt.trim();save();render();toast('Reading content saved.')},'Only add books you have the right to share, such as public domain works or your own writing.')},
+setPlan:id=>{const m=mem(id);modal('Set plan for '+esc(m.name),[{k:'sh',l:'Shift',o:shifts().map(x=>[x.id,x.name+', '+x.time+' (₹'+x.fee+' a month)'])},{k:'dk',l:'Desk number (optional)',v:''}],'Save plan',d=>{const dn=parseInt(d.dk,10);if(d.dk.trim()&&(!(dn>=1&&dn<=ND())||S.members.some(x=>x.id!==id&&x.shiftId===d.sh&&x.desk===dn))){toast('That desk number is not available for this shift.');return false}m.shiftId=d.sh;m.start=m.start||now();m.desk=d.dk.trim()?dn:null;save();render();toast('Plan saved. You can now add payments.')})},
+remind:id=>{const n=sendRemind(mem(id),'staff');if(!n)return toast('This student has nothing pending.');save();render();toast('Reminder sent to '+mem(id).name+'.')},
+remindAll:()=>{let c=0;S.members.forEach(m=>{if(sendRemind(m,'staff'))c++});save();render();toast('Reminders sent to '+c+' student'+(c===1?'':'s')+'.')},
+saveRemind:()=>{const d=parseInt($('#rd').value,10);if(!(d>=1))return toast('Enter the number of days.');S.cfg.autoRemind=$('#ra').value==='on';S.cfg.remindDays=d;save();render();toast('Reminder settings saved.')},
+pickShift:id=>{dsh=id;render()},
+desk:n=>{n=+n;const cur=dsh||shifts()[0].id,h=S.members.find(m=>m.shiftId===cur&&m.desk===n);
+if(h)return modal('Desk '+n,[],'Unassign desk',()=>{h.desk=null;h.shiftId=null;save();render();toast('Desk freed.')},esc(h.name)+' holds this desk. Unassigning also stops their monthly fee.');
+if(!S.members.length)return toast('Add a member first.');
+modal('Assign desk '+n,[{k:'m',l:'Student',o:S.members.map(m=>[m.id,m.name+(m.desk?' (now desk '+m.desk+')':'')])}],'Assign desk',d=>{const m=mem(d.m);m.shiftId=cur;m.desk=n;m.start=m.start||now();save();render();toast('Desk assigned.')},esc(shifts().find(x=>x.id===cur).name))},
+locker:n=>{n=+n;const h=S.members.find(m=>m.locker===n);
+if(h)return modal('Locker '+n,[],'Unassign locker',()=>{h.locker=null;save();render();toast('Locker freed.')},esc(h.name)+' uses this locker.');
+if(!S.members.length)return toast('Add a member first.');
+modal('Assign locker '+n,[{k:'m',l:'Student',o:S.members.map(m=>[m.id,m.name+(m.locker?' (now locker '+m.locker+')':'')])}],'Assign locker',d=>{mem(d.m).locker=n;save();render();toast('Locker assigned.')})},
+payFee:id=>{const m=mem(id),sh=shOf(m),pm=payMonths(m);if(!pm.length)return toast('Every month is already paid.');modal('Add payment for '+esc(m.name),[{k:'mo',l:'For month',o:pm.map(x=>[x,monLabel(x)])},{k:'amt',l:'Amount (₹)',t:'number',v:sh.fee},{k:'me',l:'Paid by',o:[['Cash','Cash'],['UPI','UPI'],['Bank transfer','Bank transfer']]}],'Record payment',d=>{const a=parseFloat(d.amt);if(!(a>0)){toast('Enter the amount received.');return false}
+const p={id:uid('p'),memberId:id,month:d.mo,amount:a,method:d.me,at:now(),no:S.rcpt=(S.rcpt||1000)+1};(S.payments=S.payments||[]).push(p);save();render();toast('Payment recorded.');setTimeout(()=>rcpt(p.id),0)},esc(sh.name)+', '+esc(sh.time))},
+viewRcpt:id=>rcpt(id),
+addExp:()=>modal('Add an expense',[{k:'date',l:'Date',t:'date',v:isoD(new Date())},{k:'cat',l:'Category',o:['Rent','Electricity','Internet','Staff salary','Maintenance','Other'].map(x=>[x,x])},{k:'amt',l:'Amount (₹)',t:'number',v:''},{k:'note',l:'Note',v:''}],'Add expense',d=>{const a=parseFloat(d.amt);if(!d.date||!(a>0)){toast('Enter a date and an amount.');return false}(S.expenses=S.expenses||[]).push({id:uid('e'),date:d.date,category:d.cat,note:d.note.trim(),amount:a});save();render();toast('Expense added.')}),
+delExp:id=>{S.expenses=(S.expenses||[]).filter(x=>x.id!==id);save();render();toast('Expense removed.')},
+saveStudy:()=>{const sh=shifts().map((x,i)=>({id:x.id,name:$('#sn'+i).value.trim(),time:$('#st'+i).value.trim(),fee:Math.max(0,parseFloat($('#sf'+i).value)||0)})),nd=parseInt($('#nd').value,10),nl=parseInt($('#nl').value,10);
+if(sh.some(x=>!x.name)||!(nd>=1)||!(nl>=0))return toast('Check the shift names, desks and lockers.');
+if(nd<Math.max(0,...S.members.map(m=>m.desk||0))||nl<Math.max(0,...S.members.map(m=>m.locker||0)))return toast('Some desks or lockers above that number are still assigned.');
+S.cfg.shifts=sh;S.cfg.desks=nd;S.cfg.lockers=nl;save();render();toast('Study center settings saved.')},
+importCsv:()=>{const lines=$('#csv').value.split('\n').map(x=>x.trim()).filter(Boolean);let add=0,skip=0;
+lines.forEach((ln,i)=>{const a=ln.split(',').map(x=>x.trim()),n=a[0],e=a[1],s=a[2],dn=parseInt(a[3],10);if(i===0&&/^name$/i.test(n))return;
+if(!n||!e||S.members.some(m=>(m.email||'').toLowerCase()===e.toLowerCase())){skip++;return}
+const sh=s&&shifts().find(x=>x.name.toLowerCase()===s.toLowerCase()),m={id:uid('m'),name:n,email:e,joined:now(),pw:'student123'};
+if(sh){m.shiftId=sh.id;m.start=now();if(dn>=1&&dn<=ND()&&!S.members.some(x=>x.shiftId===sh.id&&x.desk===dn))m.desk=dn}
+S.members.push(m);add++});save();render();toast('Imported '+add+' student'+(add===1?'':'s')+(skip?', skipped '+skip:'')+'.')},
+replyT:id=>{const t=S.tickets.find(x=>x.id===id);modal('Reply to '+mnm(t.memberId),[{k:'r',l:'Your reply',v:''}],'Send reply',d=>{if(!d.r.trim()){toast('Write a reply first.');return false}t.replies.push({by:'staff',text:d.r.trim(),at:now()});if(t.status==='Open')t.status='Answered';save();render();toast('Reply sent.')},esc(t.subject))},resolveT:id=>{S.tickets.find(x=>x.id===id).status='Resolved';save();render();toast('Request marked as resolved.')},cxSeat:id=>{S.seats=(S.seats||[]).filter(x=>x.id!==id);save();render();toast('Booking cancelled.')},collect:id=>{const o=S.orders.find(x=>x.id===id);o.status='Collected';save();render();toast('Marked as paid and collected.')},addBook:()=>bookForm(),editBook:id=>bookForm(book(id)),addMember:()=>memForm(),editMember:id=>memForm(mem(id)),
+delBook:id=>{if(out(id))return toast('Return all copies of this book before removing it.');modal('Remove book',[],'Remove',()=>{S.books=S.books.filter(x=>x.id!==id);save();render();toast('Book removed.')},`Remove “${esc(book(id).title)}” from the catalog? This can’t be undone.`)},
+delMember:id=>{if(S.loans.some(l=>!l.returned&&l.memberId===id))return toast('This member still has books on loan.');modal('Remove member',[],'Remove',()=>{S.members=S.members.filter(x=>x.id!==id);save();render();toast('Member removed.')},`Remove ${esc(mem(id).name)}? This can’t be undone.`)},
+issue:()=>{const bs=S.books.filter(b=>avail(b)>0);if(!S.members.length)return toast('Add a member first.');if(!bs.length)return toast('No copies are available right now.');
+modal('Issue a book',[{k:'b',l:'Book',o:bs.map(b=>[b.id,`${b.title} (${avail(b)} in)`])},{k:'m',l:'Member',o:S.members.map(m=>[m.id,m.name])}],'Issue book',d=>{const t=now();S.loans.push({id:uid('l'),bookId:d.b,memberId:d.m,issued:t,due:t+S.cfg.days*DAY,returned:null,fine:0});save();render();toast(`Issued. Due ${fmt(t+S.cfg.days*DAY)}.`)},`Loan period is ${S.cfg.days} days.`)},
+ret:id=>{const l=S.loans.find(x=>x.id===id);l.returned=now();l.fine=fineFor(l);save();render();toast(l.fine?`Returned. Fine due: ₹${l.fine}.`:'Returned. No fine.')},
+seg:v=>{f.lf=v;render()},
+saveCfg:()=>{const n=$('#cn').value.trim(),fi=parseFloat($('#cf').value),dy=parseInt($('#cd').value,10);if(!n||!(fi>=0)||!(dy>=1))return toast('Check the library name, fine and loan period.');S.cfg={name:n,fine:fi,days:dy};save();render();toast('Settings saved.')},
+saveAcc:()=>{const u=$('#su').value.trim(),p=$('#sp').value;if(!u||(p&&p.length<6))return toast('Enter a username, and a password of 6 or more characters.');CR={u,p:p||CR.p};sv('lms2_admin',CR);render();toast('Account updated.')},
+clearAll:()=>modal('Delete all data',[],'Delete everything',()=>{S={cfg:S.cfg,books:[],members:[],loans:[],seats:[],orders:[],payments:[],expenses:[],tickets:[],rcpt:1000};save();render();toast('All data deleted.')},'This removes every book, member, loan, payment and request from this browser. It can’t be undone.'),reset:()=>modal('Reset data',[],'Load sample data',()=>{S=seed();save();render();toast('Data reset to the sample set.')},'This replaces all books, members and loans with the sample data.')};
+function render(){$('#login').hidden=IN;$('#app').hidden=!IN;$('#llogo').innerHTML=$('#alogo').innerHTML=ic('book');$('#lname').textContent=$('#aname').textContent=S.cfg.name;
+if(!IN)return;
+$('#nav').innerHTML=NAV.map(([k,i,l])=>`<button class="nv${k===page?' on':''}" data-p="${k}">${ic(i)}${l}</button>`).join('');
+$('#av').textContent=CR.u[0].toUpperCase();$('#un').textContent=CR.u;$('#lo').innerHTML=ic('out');
+$('#pt').textContent=T[page][0];$('#ps').textContent=T[page][1];$('#dt').textContent=new Date().toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long'});
+$('#view').innerHTML=V[page]()}
+$('#nav').onclick=e=>{const b=e.target.closest('[data-p]');if(b){page=b.dataset.p;f={q:'',cat:'',lf:'all'};render();document.host.scrollTo(0,0)}};
+$('#view').onclick=e=>{const t=e.target.closest('[data-a]');if(t&&ACT[t.dataset.a])ACT[t.dataset.a](t.dataset.id)};
+$('#view').addEventListener('input',e=>{const k=e.target.dataset.f;if(k){f[k]=e.target.value;$('#tbl').innerHTML=TBL[page]()}});
+$('#lo').onclick=()=>{IN=false;sv('lms2_in',0,1);page='dashboard';render()};
+document.host.addEventListener('show',()=>{S=ld('lms2')||S;render()});
+$('#lf').onsubmit=e=>{e.preventDefault();const d=new FormData(e.target);if(d.get('u').trim()===CR.u&&d.get('p')===CR.p){IN=true;sv('lms2_in',1,1);$('#lerr').textContent='';e.target.reset();render()}else $('#lerr').textContent='Wrong username or password.'};
+render();
+
+})(SR);
+(function(document){
+const $=(s,r=document)=>r.querySelector(s),DAY=864e5,now=()=>Date.now(),uid=p=>p+Math.random().toString(36).slice(2,8);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=t=>new Date(t).toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'});
+const iso=d=>new Date(d.getTime()-d.getTimezoneOffset()*6e4).toISOString().slice(0,10);
+const IC='<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"/><path d="M4 19.5V21h16"/></svg>';
+const ld=()=>{try{return JSON.parse(lsGet('lms2')||'null')}catch(e){return null}};
+const ldS=()=>ld()||{cfg:{name:'City Central Library',fine:2,days:14},books:[],members:[],loans:[]};
+const save=()=>{lsSet('lms2',JSON.stringify(S))};
+function toast(t){const e=$('#toast');e.textContent=t;e.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>e.hidden=true,3000)}
+const SL=['9:00 AM to 12:00 PM','12:00 PM to 3:00 PM','3:00 PM to 6:00 PM'],SEATS=24,TABS=[['home','Overview'],['seat','Book a seat'],['buy','Buy books'],['orders','My orders'],['study','Desk and fees'],['notes','Notifications'],['help','Help and support']];
+let S,me=null,q='',mode='in',tab='home',sel={date:iso(new Date()),slot:0,seat:null};
+const book=id=>S.books.find(b=>b.id===id),out=id=>S.loans.filter(l=>!l.returned&&l.bookId===id).length;
+const price=b=>b.price??299,stock=b=>b.stock??5;
+const late=l=>!l.returned&&l.due<now(),fine=l=>Math.max(0,Math.ceil(((l.returned||now())-l.due)/DAY))*S.cfg.fine;
+const stat=(l,v,s)=>`<div class="stat"><div><div class="sl">${l}</div><b>${v}</b><div class="ss">${s}</div></div></div>`;
+const empty=t=>`<div class="empty">${t}</div>`;
+function trendRows(){const since=now()-30*DAY,c={};
+S.loans.filter(l=>l.issued>=since).forEach(l=>{(c[l.bookId]=c[l.bookId]||{l:0,o:0}).l++});
+(S.orders||[]).filter(o=>o.at>=since&&o.status!=='Cancelled').forEach(o=>{(c[o.bookId]=c[o.bookId]||{l:0,o:0}).o+=o.qty||1});
+return Object.entries(c).map(([id,v])=>({b:book(id),...v,n:v.l+v.o})).filter(x=>x.b).sort((a,b)=>b.n-a.n).slice(0,5)}
+function weekCounts(){const t=now(),w=[0,0,0,0],add=ts=>{const a=Math.floor((t-ts)/(7*DAY));if(a>=0&&a<4)w[3-a]++};
+S.loans.forEach(l=>add(l.issued));(S.orders||[]).filter(o=>o.status!=='Cancelled').forEach(o=>add(o.at));return w}
+const clip=(s,n)=>s.length>n?s.slice(0,n-1)+'…':s;
+function barSVG(r){if((document.host?document.host.clientWidth:1000)<700)return barCompact(r);const mx=Math.max(3,...r.map(x=>x.n)),st=mx<=5?1:Math.ceil(mx/5),M=Math.ceil(mx/st)*st,X0=230,W=380,RH=54,H=r.length*RH+46,sx=v=>X0+v/M*W;
+let g='';for(let v=0;v<=M;v+=st)g+=`<line x1="${sx(v)}" x2="${sx(v)}" y1="8" y2="${H-30}" style="stroke:var(--line)"/><text x="${sx(v)}" y="${H-10}" text-anchor="middle" style="fill:var(--mute);font-size:12px">${v}</text>`;
+const bars=r.map((x,i)=>{const y=16+i*RH,top=i===0,lw=x.l/M*W,tw=x.n/M*W;
+return `<g><title>${esc(x.b.title)}: ${x.l} borrowed, ${x.o} bought</title><circle cx="16" cy="${y+14}" r="12" style="fill:${top?'var(--acc)':'var(--acc2)'}"/><text x="16" y="${y+18.5}" text-anchor="middle" style="fill:${top?'var(--onacc)':'var(--acc)'};font-size:12px;font-weight:600">${i+1}</text><text x="38" y="${y+11}" style="fill:var(--ink);font-size:13px;font-weight:600">${esc(clip(x.b.title,26))}</text><text x="38" y="${y+28}" style="fill:var(--mute);font-size:12px">${esc(clip(x.b.author,28))}</text><rect x="${X0}" y="${y+2}" width="${tw}" height="24" rx="6" style="fill:var(--ok)"/>${x.l?`<rect x="${X0}" y="${y+2}" width="${lw}" height="24" rx="6" style="fill:var(--acc)"/>`:''}<text x="${X0+tw+8}" y="${y+19}" style="fill:var(--ink);font-size:13px;font-weight:600">${x.n}</text></g>`}).join('');
+return `<svg viewBox="0 0 640 ${H}" role="img" aria-label="Most borrowed and bought books in the last 30 days">${g}${bars}</svg>`}
+function barCompact(r){const mx=Math.max(3,...r.map(x=>x.n)),st=mx<=5?1:Math.ceil(mx/5),M=Math.ceil(mx/st)*st,X0=14,W=290,RH=64,H=r.length*RH+34,sx=v=>X0+v/M*W;
+let g='';for(let v=0;v<=M;v+=st)g+=`<line x1="${sx(v)}" x2="${sx(v)}" y1="4" y2="${H-26}" style="stroke:var(--line)"/><text x="${sx(v)}" y="${H-8}" text-anchor="middle" style="fill:var(--mute);font-size:12px">${v}</text>`;
+const bars=r.map((x,i)=>{const y=8+i*RH,lw=x.l/M*W,tw=x.n/M*W;return `<g><title>${esc(x.b.title)}: ${x.l} borrowed, ${x.o} bought</title><text x="14" y="${y+12}" style="fill:var(--ink);font-size:13.5px;font-weight:600">${i+1}. ${esc(clip(x.b.title,30))}</text><text x="14" y="${y+28}" style="fill:var(--mute);font-size:12px">${esc(clip(x.b.author,34))}</text><rect x="${X0}" y="${y+34}" width="${tw}" height="18" rx="5" style="fill:var(--ok)"/>${x.l?`<rect x="${X0}" y="${y+34}" width="${lw}" height="18" rx="5" style="fill:var(--acc)"/>`:''}<text x="${X0+tw+8}" y="${y+48}" style="fill:var(--ink);font-size:13px;font-weight:600">${x.n}</text></g>`}).join('');
+return `<svg viewBox="0 0 360 ${H}" role="img" aria-label="Most borrowed and bought books in the last 30 days">${g}${bars}</svg>`}
+function colSVG(w){const mx=Math.max(3,...w),st=mx<=5?1:Math.ceil(mx/5),M=Math.ceil(mx/st)*st,L=34,PW=270,PH=150,T=16,lab=['3 wks ago','2 wks ago','Last week','This week'],sy=v=>T+PH-v/M*PH;
+let g='';for(let v=0;v<=M;v+=st)g+=`<line x1="${L}" x2="${L+PW}" y1="${sy(v)}" y2="${sy(v)}" style="stroke:var(--line)"/><text x="${L-8}" y="${sy(v)+4}" text-anchor="end" style="fill:var(--mute);font-size:12px">${v}</text>`;
+const cs=w.map((v,i)=>{const bw=44,x=L+14+i*(PW-28)/4+((PW-28)/4-bw)/2,y=sy(v);return `<g><title>${lab[i]}: ${v}</title><rect x="${x}" y="${y}" width="${bw}" height="${T+PH-y}" rx="6" style="fill:${i===3?'var(--acc)':'color-mix(in srgb,var(--acc) 45%,var(--card))'}"/><text x="${x+bw/2}" y="${y-6}" text-anchor="middle" style="fill:var(--ink);font-size:13px;font-weight:600">${v}</text><text x="${x+bw/2}" y="${T+PH+20}" text-anchor="middle" style="fill:var(--mute);font-size:11.5px">${lab[i]}</text></g>`}).join('');
+return `<svg viewBox="0 0 320 ${T+PH+34}" role="img" aria-label="Borrowing and purchases per week">${g}${cs}</svg>`}
+function trendCard(){const r=trendRows(),t=r[0];
+return `<div class="card"><div class="ch"><h3>Trending books this month</h3><span class="mute">Last 30 days</span></div>${r.length?`<div class="hot"><span class="pill ok">#1 right now</span><b>${esc(t.b.title)}</b><span class="mute">by ${esc(t.b.author)}, ${t.n} time${t.n===1?'':'s'} borrowed or bought</span></div><div class="tg"><div><h4 class="gh">Top 5 books</h4><div class="leg"><span><i style="background:var(--acc)"></i>Borrowed</span><span><i style="background:var(--ok)"></i>Bought</span></div>${barSVG(r)}</div><div><h4 class="gh">Activity by week</h4>${colSVG(weekCounts())}</div></div>`:'<div class="empty">No loans or purchases in the last 30 days yet.</div>'}</div>`}
+const DEFSH=[{id:'s1',name:'Morning',time:'6 AM to 12 PM',fee:600},{id:'s2',name:'Afternoon',time:'12 PM to 6 PM',fee:600},{id:'s3',name:'Evening',time:'6 PM to 12 AM',fee:500}];
+const shifts=()=>S.cfg.shifts||DEFSH,ND=()=>S.cfg.desks||30,NL=()=>S.cfg.lockers||20;
+const shOf=m=>shifts().find(x=>x.id===m.shiftId);
+const ym=t=>{const d=new Date(t);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')};
+const monthsFrom=t=>{const o=[],s=new Date(t),n=new Date();let y=s.getFullYear(),m=s.getMonth();while(y<n.getFullYear()||(y===n.getFullYear()&&m<=n.getMonth())){o.push(y+'-'+String(m+1).padStart(2,'0'));m++;if(m>11){m=0;y++}}return o};
+const duesOf=m=>{const sh=shOf(m);if(!sh)return{months:[],amount:0};const paid=new Set((S.payments||[]).filter(p=>p.memberId===m.id).map(p=>p.month)),months=monthsFrom(m.start||m.joined||Date.now()).filter(x=>!paid.has(x));return{months,amount:months.length*sh.fee}};
+const monLabel=s=>{const a=s.split('-');return new Date(a[0],a[1]-1,1).toLocaleDateString(undefined,{month:'short',year:'numeric'})};
+const rs=v=>{v=Math.round(v*100)/100;return Number.isInteger(v)?String(v):v.toFixed(2)};
+function sendRemind(m,by){const d=duesOf(m);if(!d.months.length)return null;const n={id:'n'+Math.random().toString(36).slice(2,8),memberId:m.id,kind:'fee',text:'Your fee of ₹'+rs(d.amount)+' is pending for '+d.months.map(monLabel).join(', ')+'. Please pay at the library desk.',at:Date.now(),read:false,by};(S.notes=S.notes||[]).push(n);(S.remind=S.remind||{})[m.id]=n.at;return n}
+function autoRemind(){if(S.cfg.autoRemind===false)return;const gap=(S.cfg.remindDays||7)*864e5;let ch=false;S.members.forEach(m=>{if(duesOf(m).months.length&&Date.now()-((S.remind||{})[m.id]||0)>=gap){sendRemind(m,'auto');ch=true}});if(ch)save()}
+function modal(title,fs,ok,fn,text){const m=$('#modal');
+m.innerHTML=`<form class="dlg${fs.length>4||fs.some(x=>x.ta)?' big':''}" novalidate><h3>${title}</h3>${text?`<p>${text}</p>`:''}<div class="mf">${fs.map(x=>`<label${x.w?' class="wd"':''}>${x.l}${x.o?`<select name="${x.k}">${x.o.map(o=>`<option value="${esc(o[0])}"${o[0]==x.v?' selected':''}>${esc(o[1])}</option>`).join('')}</select>`:x.ta?`<textarea name="${x.k}" rows="${x.ta}">${esc(x.v)}</textarea>`:`<input name="${x.k}" type="${x.t||'text'}" value="${esc(x.v)}"${x.t==='number'?' min="'+(x.mn??1)+'" step="'+(x.st||'any')+'"':''}>`}</label>`).join('')}</div><div class="acts"><button type="button" class="b2" data-x>Cancel</button><button class="b1">${ok}</button></div></form>`;
+m.hidden=false;const fm=$('form',m);fm.elements[0].focus();
+m.onclick=e=>{if(e.target===m||e.target.dataset.x!==undefined)m.hidden=true};
+fm.onsubmit=e=>{e.preventDefault();if(fn(Object.fromEntries(new FormData(fm)))!==false)m.hidden=true}}
+const rvBtn=l=>{const my=(S.reviews||[]).find(r=>r.memberId===me.id&&r.bookId===l.bookId);return book(l.bookId)?`<button class="b2 sm" data-a="review" data-id="${l.bookId}">${my?'Edit review':'Rate this book'}</button>`:''};
+const tp2=s=>s==='Confirmed'?'ok':s==='Rejected'?'bad':'warn';
+function payPanel(){const du=duesOf(me),sh=shOf(me),pend=new Set((S.claims||[]).filter(c=>c.memberId===me.id&&c.status==='Pending').flatMap(c=>c.months)),open=du.months.filter(x=>!pend.has(x)),mine=(S.claims||[]).filter(c=>c.memberId===me.id).sort((a,b)=>b.at-a.at).slice(0,5);let out='';
+if(S.cfg.upiId&&sh&&open.length){const amt=open.length*sh.fee,link='upi://pay?pa='+encodeURIComponent(S.cfg.upiId)+'&pn='+encodeURIComponent(S.cfg.upiName||S.cfg.name)+'&am='+amt+'&cu=INR&tn='+encodeURIComponent('Library fee '+open.map(monLabel).join(', '));
+out+=`<div class="card mt"><div class="ch"><h3>Pay by UPI</h3><span class="mute">₹${rs(amt)} for ${open.map(monLabel).join(', ')}</span></div><div class="fg"><div><div class="mute">Pay to</div><b>${esc(S.cfg.upiName||S.cfg.name)}</b><div>${esc(S.cfg.upiId)}</div></div><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-start"><a class="b1" style="text-decoration:none" href="${link}">Open UPI app</a><button class="b2" data-a="copyUpi">Copy UPI ID</button></div></div><div class="fa"><p class="mute" style="margin-top:0">After you pay, enter the 12 digit UPI reference number from your payment app. Staff will confirm it and issue a receipt. On a computer, pay from your phone using the UPI ID above.</p><div style="display:grid;gap:10px;max-width:420px"><div>${open.map(x=>`<label style="display:flex;gap:8px;align-items:center;font-weight:500"><input type="checkbox" name="cm" value="${x}" checked style="width:auto;min-width:0;padding:0;border:0">${monLabel(x)}</label>`).join('')}</div><label style="display:grid;gap:6px;font-weight:500;font-size:13px">UPI reference number<input id="utr" inputmode="numeric" maxlength="12" placeholder="12 digits"></label><div><button class="b1" data-a="claim">I have paid</button></div></div></div></div>`}
+if(mine.length)out+=`<div class="card mt"><div class="ch"><h3>My UPI payments</h3></div>${mine.map(c=>`<div class="li"><span>${c.months.map(monLabel).join(', ')}, ₹${rs(c.amount)}<span class="mute" style="display:block">Reference ${esc(c.utr)}${c.status==='Rejected'&&c.note?'. '+esc(c.note):''}</span></span><span class="pill ${tp2(c.status)}">${c.status==='Pending'?'Waiting for confirmation':c.status}</span></div>`).join('')}</div>`;
+return out}
+function vStudy(){const sh=shOf(me),du=duesOf(me),pays=(S.payments||[]).filter(p=>p.memberId===me.id).sort((a,b)=>b.at-a.at);
+return `<div class="stats">${stat('My desk',me.desk?'Desk '+me.desk:'Not assigned',sh?esc(sh.name)+', '+esc(sh.time):'Ask the library desk to assign one')}${stat('My locker',me.locker?'Locker '+me.locker:'None',me.locker?'Assigned to you':'')}${stat('Monthly fee',sh?'₹'+rs(sh.fee):'-',sh?'Pay at the library desk':'')}${stat('Fees due','₹'+rs(du.amount),du.months.length?du.months.map(monLabel).join(', '):'You are all paid up')}</div>
+${payPanel()}<div class="card mt"><div class="ch"><h3>My fee receipts</h3></div>${pays.length?`<div class="tw"><table><tr><th>Receipt</th><th>For month</th><th>Amount</th><th>Method</th><th>Paid on</th></tr>${pays.map(p=>`<tr><td class="strong">#${p.no}</td><td>${monLabel(p.month)}</td><td>₹${rs(p.amount)}</td><td>${esc(p.method)}</td><td>${fmt(p.at)}</td></tr>`).join('')}</table></div>`:empty('No payments recorded yet.')}</div>`}
+function vHome(){const mine=S.loans.filter(l=>l.memberId===me.id).sort((a,b)=>b.issued-a.issued),open=mine.filter(l=>!l.returned),od=open.filter(late),owed=od.reduce((a,l)=>a+fine(l),0),up=(S.seats||[]).filter(x=>x.memberId===me.id&&x.date>=iso(new Date())).length;
+return `${dueBanner()}${trendCard()}<div class="stats mt">${stat('Books on loan',open.length,'Loan period is '+S.cfg.days+' days')}${stat('Overdue',od.length,'Please return these soon')}${stat('Fines accrued','₹'+owed,'₹'+S.cfg.fine+' per late day')}${stat('Upcoming seats',up,'Reading-room bookings')}</div>
+<div class="card mt"><div class="ch"><h3>My borrowed books</h3></div>${mine.length?`<div class="tw"><table><tr><th>Book</th><th>Issued</th><th>Due</th><th>Status</th><th>Fine</th><th></th></tr>${mine.map(l=>`<tr><td class="strong">${esc(book(l.bookId)?.title||'Removed book')}</td><td>${fmt(l.issued)}</td><td>${fmt(l.due)}</td><td>${l.returned?'<span class="pill ok">Returned</span>':late(l)?`<span class="pill bad">Overdue, ${Math.ceil((now()-l.due)/DAY)}d</span>`:'<span class="pill info">On loan</span>'}</td><td>${fine(l)?'₹'+rs(fine(l)):'-'}</td><td class="ra">${rvBtn(l)}</td></tr>`).join('')}</table></div>`:empty('You haven’t borrowed any books yet.')}</div>`}
+function vSeat(){const all=S.seats||[],taken=new Set(all.filter(x=>x.date===sel.date&&x.slot===SL[sel.slot]).map(x=>x.seat)),mine=all.filter(x=>x.memberId===me.id&&x.date>=iso(new Date())).sort((a,b)=>a.date<b.date?-1:1);
+return `<div class="card"><div class="ch"><h3>Reserve a reading-room seat</h3></div><div class="fg"><label>Date<input type="date" id="sd" value="${sel.date}" min="${iso(new Date())}"></label><label>Time slot<select id="ss">${SL.map((s,i)=>`<option value="${i}"${i===sel.slot?' selected':''}>${s}</option>`).join('')}</select></label></div>
+<div class="seats">${Array.from({length:SEATS},(_,i)=>{const n=i+1,t=taken.has(n);return `<button class="seat${t?' taken':''}${sel.seat===n?' sel':''}" data-a="pick" data-id="${n}"${t?' disabled':''} aria-label="Seat ${n}${t?', taken':''}">${n}</button>`}).join('')}</div>
+<div class="fa"><button class="b1" data-a="book"${sel.seat?'':' disabled'}>${sel.seat?'Book seat '+sel.seat:'Pick a seat'}</button></div></div>
+<div class="card mt"><div class="ch"><h3>My seat bookings</h3></div>${mine.length?`<div class="tw"><table><tr><th>Date</th><th>Time</th><th>Seat</th><th></th></tr>${mine.map(x=>`<tr><td>${esc(x.date)}</td><td>${esc(x.slot)}</td><td>Seat ${x.seat}</td><td class="ra"><button class="b2 sm" data-a="cxSeat" data-id="${x.id}">Cancel</button></td></tr>`).join('')}</table></div>`:empty('No upcoming bookings.')}</div>`}
+const buyTbl=()=>{const k=q.toLowerCase(),r=S.books.filter(b=>(b.title+b.author+(b.category||'')).toLowerCase().includes(k));
+return r.length?`<div class="tw"><table><tr><th>Book</th><th>Category</th><th>Price</th><th>In stock</th><th></th></tr>${r.map(b=>`<tr><td><div class="strong">${esc(b.title)}</div><div class="mute">${esc(b.author)}</div></td><td><span class="pill info">${esc(b.category)}</span></td><td>₹${price(b)}</td><td><span class="pill ${stock(b)?'ok':'bad'}">${stock(b)?stock(b)+' left':'Out of stock'}</span></td><td class="ra"><button class="b1" data-a="buy" data-id="${b.id}"${stock(b)?'':' disabled'}>Buy</button></td></tr>`).join('')}</table></div>`:empty('No books match your search.')};
+function vBuy(){return `<div class="card"><p class="note">There is no online payment. Reserve a copy here, then pay and collect it at the library desk.</p><div class="tools"><div class="search"><svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4-4"/></svg><input data-f="q" value="${esc(q)}" placeholder="Search title, author or category" aria-label="Search books"></div></div><div id="tbl">${buyTbl()}</div></div>`}
+function vOrders(){const r=(S.orders||[]).filter(o=>o.memberId===me.id).sort((a,b)=>b.at-a.at);
+return `<div class="card"><div class="ch"><h3>My book orders</h3></div>${r.length?`<div class="tw"><table><tr><th>Book</th><th>Total</th><th>Ordered</th><th>Status</th><th></th></tr>${r.map(o=>`<tr><td class="strong">${esc(book(o.bookId)?.title||'Removed book')}</td><td>₹${o.total}</td><td>${fmt(o.at)}</td><td><span class="pill ${o.status==='Collected'?'ok':o.status==='Cancelled'?'bad':'warn'}">${o.status}</span></td><td class="ra">${o.status==='Reserved'?`<button class="b2 sm" data-a="cxOrder" data-id="${o.id}">Cancel</button>`:''}</td></tr>`).join('')}</table></div>`:empty('No orders yet. Reserve a book from Buy books.')}</div>`}
+const tp=s=>s==='Resolved'?'ok':s==='Answered'?'info':'warn';
+function vHelp(){const mine=(S.tickets||[]).filter(t=>t.memberId===me.id).sort((a,b)=>b.at-a.at),Q=(q,a)=>`<div><b>${q}</b><span class="mute">${a}</span></div>`;
+return `<div class="card"><div class="ch"><h3>Common questions</h3></div><div class="faq">${Q('How long can I keep a book?','Books are issued for '+S.cfg.days+' days.')}${Q('What if I return a book late?','A fine of ₹'+S.cfg.fine+' per late day is added.')}${Q('How do I pay for a book I reserved?','Pay at the library desk when you collect it. There is no online payment.')}${Q('Can I change a seat booking?','Cancel it under Book a seat, then book another one.')}</div></div>
+<div class="card mt"><div class="ch"><h3>Contact the library</h3></div><div class="fg"><label>Topic<select id="tc">${['Borrowing and returns','Fines','Seat booking','Book orders','My account','Something else'].map(c=>`<option>${c}</option>`).join('')}</select></label><label>Subject<input id="ts" maxlength="80" placeholder="A short summary"></label></div><div class="fa"><label style="display:grid;gap:6px;font-weight:500;font-size:13px">Tell us what happened<textarea id="tm" rows="4" maxlength="800"></textarea></label><div style="margin-top:12px"><button class="b1" data-a="sendT">Send to the library</button></div></div></div>
+<div class="card mt"><div class="ch"><h3>My requests</h3></div>${mine.length?mine.map(t=>`<div style="padding:16px 20px;border-top:1px solid var(--line);display:grid;gap:8px"><div style="display:flex;justify-content:space-between;gap:10px"><b>${esc(t.subject)}</b><span class="pill ${tp(t.status)}">${t.status}</span></div><div class="mute">${esc(t.category)}, ${fmt(t.at)}</div><div>${esc(t.message)}</div>${t.replies.map(x=>`<div style="border-left:3px solid var(--acc);padding-left:12px"><div class="mute">Library staff, ${fmt(x.at)}</div>${esc(x.text)}</div>`).join('')}${t.status==='Resolved'?'':`<div><button class="b2 sm" data-a="closeT" data-id="${t.id}">Mark as resolved</button></div>`}</div>`).join(''):empty('You have not sent any requests yet.')}</div>`}
+
+const agoS=t=>{const m=Math.floor((now()-t)/6e4);if(m<1)return 'just now';if(m<60)return m+' min ago';const h=Math.floor(m/60);if(h<24)return h+(h===1?' hour ago':' hours ago');const d=Math.floor(h/24);return d+(d===1?' day ago':' days ago')};
+function dueBanner(){const d=duesOf(me);return d.months.length?`<div class="note" style="border-radius:12px;margin-bottom:16px">Fees pending: ₹${rs(d.amount)} for ${d.months.map(monLabel).join(', ')}. Please pay at the library desk.</div>`:''}
+function vNotes(){const mine=(S.notes||[]).filter(n=>n.memberId===me.id).sort((a,b)=>b.at-a.at);
+const html=`<div class="card"><div class="ch"><h3>Notifications</h3></div>${mine.length?mine.map(n=>`<div class="li" style="${n.read?'':'background:var(--acc2)'}"><span><b class="strong">Fee reminder</b><span class="mute" style="display:block">${esc(n.text)}</span></span><span class="mute">${agoS(n.at)}</span></div>`).join(''):empty('No notifications.')}</div>`;
+mine.forEach(n=>{n.read=true});save();return html}
+const VW={notes:vNotes,home:vHome,seat:vSeat,buy:vBuy,orders:vOrders,study:vStudy,help:vHelp};
+function render(){S=ld()||{cfg:{name:'City Central Library',fine:2,days:14},books:[],members:[],loans:[]};
+let id=null;try{id=lsGet('lms2_stu',1)}catch(e){}
+me=id?S.members.find(m=>m.id===id):null;
+$('#login').hidden=!!me;$('#app').hidden=!me;$('#llogo').innerHTML=$('#alogo').innerHTML=IC;$('#lname').textContent=$('#aname').textContent=S.cfg.name;
+if(!me)return;
+$('#who').textContent=me.name;$('#pt').textContent='Hello, '+me.name.split(' ')[0];
+autoRemind();const un=(S.notes||[]).filter(n=>n.memberId===me.id&&!n.read).length;
+$('#tabs').innerHTML=TABS.map(([k,l])=>`<button class="${k===tab?'on':''}" data-t="${k}">${l}${k==='notes'&&un&&tab!=='notes'?' ('+un+')':''}</button>`).join('');
+$('#view').innerHTML=VW[tab]()}
+function setMode(m){mode=m;$('#lf').querySelectorAll('.seg button').forEach(b=>b.classList.toggle('on',b.dataset.m===m));const up=m==='up';
+$('#ln').hidden=!up;$('#lph').hidden=!up;$('#lh').textContent=up?'Create your student account':'Student sign in';$('#lbtn').textContent=up?'Create account':'Sign in';$('#lhint').textContent=up?'Use a password of 6 or more characters.':'';$('#lerr').textContent=''}
+function enter(id){lsSet('lms2_stu',id,1);$('#lf').reset();$('#lerr').textContent='';tab='home';render()}
+$('#lf').querySelector('.seg').onclick=e=>{const b=e.target.closest('button');if(b)setMode(b.dataset.m)};
+$('#lf').onsubmit=e=>{e.preventDefault();S=ldS();const d=new FormData(e.target),u=d.get('u').trim().toLowerCase(),p=d.get('p'),err=$('#lerr');
+if(mode==='in'){const m=S.members.find(x=>(x.email||'').toLowerCase()===u&&(x.pw||'student123')===p);if(!m){err.textContent='Wrong email or password.';return}enter(m.id)}
+else{const n=d.get('n').trim();if(!n||!u){err.textContent='Enter your name and email.';return}if(p.length<6){err.textContent='Use a password of 6 or more characters.';return}
+if(S.members.some(x=>(x.email||'').toLowerCase()===u)){err.textContent='An account with this email already exists. Sign in instead.';return}
+const ph=(d.get('ph')||'').trim();if(ph&&!/^\+?[0-9 ()-]{8,15}$/.test(ph)){err.textContent='Enter a valid phone number or leave it empty.';return}
+const m={id:uid('m'),name:n,email:d.get('u').trim(),joined:now(),pw:p,phone:ph};S.members.push(m);save();toast('Account created. Welcome!');enter(m.id)}};
+$('#tabs').onclick=e=>{const b=e.target.closest('[data-t]');if(b){tab=b.dataset.t;q='';render()}};
+const ACT={review:id=>{S=ldS();const b=book(id);if(!b||!S.loans.some(l=>l.memberId===me.id&&l.bookId===id))return toast('Only students who have borrowed this book can review it.');const my=(S.reviews||[]).find(r=>r.memberId===me.id&&r.bookId===id);
+modal('Review '+esc(b.title),[{k:'rt',l:'Your rating',o:[['5','5 out of 5, excellent'],['4','4 out of 5, good'],['3','3 out of 5, okay'],['2','2 out of 5, poor'],['1','1 out of 5, very poor']],v:my?String(my.rating):'5'},{k:'tx',l:'Your review (optional)',w:1,ta:4,v:my?my.text||'':''}],'Save review',d=>{const rt=parseInt(d.rt,10);if(!(rt>=1&&rt<=5)){toast('Pick a rating.');return false}if(d.tx.length>600){toast('Keep the review under 600 characters.');return false}
+S=ldS();const list=S.reviews=S.reviews||[],ex=list.find(r=>r.memberId===me.id&&r.bookId===id);if(ex){ex.rating=rt;ex.text=d.tx.trim();ex.at=now()}else list.push({id:uid('r'),bookId:id,memberId:me.id,rating:rt,text:d.tx.trim(),at:now()});save();render();toast('Thanks for your review.')},'Your first name, rating and review will be shown next to this book on the library website.')},
+copyUpi:()=>{try{navigator.clipboard.writeText(S.cfg.upiId).then(()=>toast('UPI ID copied.'),()=>toast('Could not copy. Select the UPI ID and copy it by hand.'))}catch(e){toast('Could not copy. Select the UPI ID and copy it by hand.')}},
+claim:()=>{S=ldS();const sh=shOf(me),ms=[...document.querySelectorAll('input[name=cm]:checked')].map(x=>x.value),u=($('#utr').value||'').trim();if(!sh)return;
+if(!ms.length)return toast('Pick at least one month.');if(!/^\d{12}$/.test(u))return toast('Enter the 12 digit UPI reference number.');
+if((S.claims||[]).some(c=>c.utr===u&&c.status!=='Rejected'))return toast('That reference number was already submitted.');
+(S.claims=S.claims||[]).push({id:uid('c'),memberId:me.id,months:ms,amount:ms.length*sh.fee,utr:u,at:now(),status:'Pending'});save();toast('Sent. Staff will confirm your payment.');render()},
+sendT:()=>{const sb=$('#ts').value.trim(),m=$('#tm').value.trim();if(!sb||!m)return toast('Add a subject and describe the problem.');S=ldS();(S.tickets=S.tickets||[]).push({id:uid('t'),memberId:me.id,category:$('#tc').value,subject:sb,message:m,status:'Open',replies:[],at:now()});save();toast('Sent. The library will reply here.');render()},
+closeT:id=>{S=ldS();S.tickets.find(x=>x.id===id).status='Resolved';save();toast('Marked as resolved.');render()},pick:n=>{sel.seat=+n;render()},
+book:()=>{S=ldS();const sl=SL[sel.slot],all=S.seats=S.seats||[];if(sel.date<iso(new Date()))return toast('Pick today or a later date.');
+if(all.some(x=>x.date===sel.date&&x.slot===sl&&x.seat===sel.seat))return toast('That seat was just taken. Pick another.');
+if(all.some(x=>x.date===sel.date&&x.slot===sl&&x.memberId===me.id))return toast('You already have a seat for this time slot.');
+all.push({id:uid('s'),memberId:me.id,date:sel.date,slot:sl,seat:sel.seat,at:now()});save();toast(`Seat ${sel.seat} booked for ${sel.date}, ${sl}.`);sel.seat=null;render()},
+cxSeat:id=>{S=ldS();S.seats=(S.seats||[]).filter(x=>x.id!==id);save();toast('Booking cancelled.');render()},
+buy:id=>{S=ldS();const b=book(id);if(!b||stock(b)<1)return toast('Sorry, that book is out of stock.');b.stock=stock(b)-1;b.price=price(b);(S.orders=S.orders||[]).push({id:uid('o'),memberId:me.id,bookId:id,qty:1,total:price(b),status:'Reserved',at:now()});save();toast(`Reserved. Pay ₹${price(b)} at the library desk.`);render()},
+cxOrder:id=>{S=ldS();const o=S.orders.find(x=>x.id===id);if(!o||o.status!=='Reserved')return;o.status='Cancelled';const b=book(o.bookId);if(b)b.stock=stock(b)+o.qty;save();toast('Order cancelled.');render()}};
+$('#view').onclick=e=>{const t=e.target.closest('[data-a]');if(t&&ACT[t.dataset.a])ACT[t.dataset.a](t.dataset.id)};
+$('#view').addEventListener('change',e=>{if(e.target.id==='sd'){sel.date=e.target.value||sel.date;sel.seat=null;render()}if(e.target.id==='ss'){sel.slot=+e.target.value;sel.seat=null;render()}});
+$('#view').addEventListener('input',e=>{if(e.target.dataset.f){q=e.target.value;$('#tbl').innerHTML=buyTbl()}});
+$('#lo').onclick=()=>{lsDel('lms2_stu',1);render()};
+document.host.addEventListener('show',render);
+render();
+})(SR2);
+</script>
+</body>
+</html>
